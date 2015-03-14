@@ -41,7 +41,7 @@ var _ = Describe("Processor", func() {
 		It("creates a TimingMetric with a Stat and a Value", func() {
 			httpStartStopMetric := processor.ProcessHttpStartStop(event)
 
-			Expect(httpStartStopMetric.Stat).To(Equal("http.endpoints.api_10_244_0_34_xip_io"))
+			Expect(httpStartStopMetric.Stat).To(Equal("http.hostnames.api_10_244_0_34_xip_io"))
 			Expect(httpStartStopMetric.Value).To(Equal(int64(9)))
 		})
 	})
