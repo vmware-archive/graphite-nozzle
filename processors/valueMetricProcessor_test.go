@@ -1,7 +1,7 @@
-package processor_test
+package processors_test
 
 import (
-	. "github.com/teddyking/graphite-nozzle/processor"
+	. "github.com/teddyking/graphite-nozzle/processors"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"

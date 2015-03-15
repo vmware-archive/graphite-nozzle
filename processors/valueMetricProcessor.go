@@ -1,4 +1,4 @@
-package processor
+package processors
 
 import (
 	"github.com/cloudfoundry/noaa/events"

@@ -12,7 +12,7 @@ import (
 	"github.com/cloudfoundry/noaa/events"
 	"github.com/quipo/statsd"
 	"github.com/teddyking/graphite-nozzle/metrics"
-	"github.com/teddyking/graphite-nozzle/processor"
+	"github.com/teddyking/graphite-nozzle/processors"
 )
 
 const DopplerAddress = "wss://doppler.10.244.0.34.xip.io:443"
@@ -24,8 +24,8 @@ var authToken = os.Getenv("CF_ACCESS_TOKEN")
 
 func main() {
 	consumer := noaa.NewConsumer(DopplerAddress, &tls.Config{InsecureSkipVerify: true}, nil)
-	httpStartStopProcessor := processor.NewHttpStartStopProcessor()
-	valueMetricProcessor := processor.NewValueMetricProcessor()
+	httpStartStopProcessor := processors.NewHttpStartStopProcessor()
+	valueMetricProcessor := processors.NewValueMetricProcessor()
 	sender := statsd.NewStatsdClient(statsdAddress, statsdPrefix)
 	sender.CreateSocket()
 

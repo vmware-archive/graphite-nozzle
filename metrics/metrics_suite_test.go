@@ -1,4 +1,4 @@
-package processor_test
+package metrics_test
 
 import (
 	. "github.com/onsi/ginkgo"
@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func TestProcessor(t *testing.T) {
+func TestMetric(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Processor Suite")
+	RunSpecs(t, "Metric Suite")
 }
