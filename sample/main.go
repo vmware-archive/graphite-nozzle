@@ -27,10 +27,6 @@ func main() {
 	sender := statsd.NewStatsdClient(statsdAddress, statsdPrefix)
 	sender.CreateSocket()
 
-	// rename consumer to firehoseConsumer
-	// sender := sender.NewSender(statsd stuff)
-	// metric.Send(sender)
-
 	msgChan := make(chan *events.Envelope)
 	go func() {
 		defer close(msgChan)
@@ -50,11 +46,7 @@ func main() {
 			metrics := processor.ProcessHttpStartStop(msg)
 
 			for _, metric := range metrics {
-				//fmt.Printf("Processed HttpStartStopEvent\n")
-				//fmt.Printf("\t%s => %d\n", metric.Stat, metric.Value)
-
-				metric.Send()
-				// sender.Timing(metric.Stat, metric.Value)
+				metric.Send(sender)
 			}
 		}
 	}
