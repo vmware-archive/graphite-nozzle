@@ -1,6 +1,7 @@
 package processor
 
 import (
+	"strconv"
 	"strings"
 
 	"github.com/cloudfoundry/noaa/events"
@@ -44,7 +45,7 @@ func (p *HttpStartStopProcessor) ProcessHttpStartStopResponseTime(event *events.
 func (p *HttpStartStopProcessor) ProcessHttpStartStopStatusCodeCount(event *events.HttpStartStop) *metrics.CounterMetric {
 	statPrefix := "http.statuscodes."
 	hostname := strings.Replace(strings.Split(event.GetUri(), "/")[0], ".", "_", -1)
-	stat := statPrefix + hostname + ".200"
+	stat := statPrefix + hostname + "." + strconv.Itoa(int(event.GetStatusCode()))
 
 	metric := &metrics.CounterMetric{
 		Stat:  stat,

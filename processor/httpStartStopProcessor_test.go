@@ -61,10 +61,22 @@ var _ = Describe("HttpStartStopProcessor", func() {
 	})
 
 	Describe("#ProcessHttpStartStopStatusCodeCount", func() {
-		It("formats the Stat string to include the hostname and the status code", func() {
-			metric := processor.ProcessHttpStartStopStatusCodeCount(httpStartStopEvent)
+		Context("with a HTTP 200 status code", func() {
+			It("formats the Stat string to include the hostname and the status code", func() {
+				metric := processor.ProcessHttpStartStopStatusCodeCount(httpStartStopEvent)
 
-			Expect(metric.Stat).To(Equal("http.statuscodes.api_10_244_0_34_xip_io.200"))
+				Expect(metric.Stat).To(Equal("http.statuscodes.api_10_244_0_34_xip_io.200"))
+			})
+		})
+
+		Context("with a HTTP 404 status code", func() {
+			It("formats the Stat string to include the hostname and the status code", func() {
+				statusCode := int32(404)
+				httpStartStopEvent.StatusCode = &statusCode
+				metric := processor.ProcessHttpStartStopStatusCodeCount(httpStartStopEvent)
+
+				Expect(metric.Stat).To(Equal("http.statuscodes.api_10_244_0_34_xip_io.404"))
+			})
 		})
 
 		It("sets the increment value for the CounterMetric to 1", func() {
