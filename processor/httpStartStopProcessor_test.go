@@ -10,16 +10,16 @@ import (
 	"github.com/teddyking/graphite-nozzle/metrics"
 )
 
-var _ = Describe("Processor", func() {
+var _ = Describe("HttpStartStopProcessor", func() {
 	var (
-		processor          *Processor
+		processor          *HttpStartStopProcessor
 		event              *events.Envelope
 		httpStartStopEvent *events.HttpStartStop
 		processedMetrics   []metrics.Metric
 	)
 
 	BeforeEach(func() {
-		processor = NewProcessor()
+		processor = NewHttpStartStopProcessor()
 
 		startTimestamp := int64(1425881484152112140)
 		stopTimestamp := int64(1425881484161498528)

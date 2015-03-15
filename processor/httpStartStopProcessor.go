@@ -7,13 +7,13 @@ import (
 	"github.com/teddyking/graphite-nozzle/metrics"
 )
 
-type Processor struct{}
+type HttpStartStopProcessor struct{}
 
-func NewProcessor() *Processor {
-	return &Processor{}
+func NewHttpStartStopProcessor() *HttpStartStopProcessor {
+	return &HttpStartStopProcessor{}
 }
 
-func (p *Processor) ProcessHttpStartStop(e *events.Envelope) []metrics.Metric {
+func (p *HttpStartStopProcessor) ProcessHttpStartStop(e *events.Envelope) []metrics.Metric {
 	processedMetrics := make([]metrics.Metric, 2)
 	httpStartStopEvent := e.GetHttpStartStop()
 
@@ -23,7 +23,7 @@ func (p *Processor) ProcessHttpStartStop(e *events.Envelope) []metrics.Metric {
 	return processedMetrics
 }
 
-func (p *Processor) ProcessHttpStartStopResponseTime(event *events.HttpStartStop) *metrics.TimingMetric {
+func (p *HttpStartStopProcessor) ProcessHttpStartStopResponseTime(event *events.HttpStartStop) *metrics.TimingMetric {
 	statPrefix := "http.responsetimes."
 	hostname := strings.Replace(strings.Split(event.GetUri(), "/")[0], ".", "_", -1)
 	stat := statPrefix + hostname
@@ -41,7 +41,7 @@ func (p *Processor) ProcessHttpStartStopResponseTime(event *events.HttpStartStop
 	return metric
 }
 
-func (p *Processor) ProcessHttpStartStopStatusCodeCount(event *events.HttpStartStop) *metrics.CounterMetric {
+func (p *HttpStartStopProcessor) ProcessHttpStartStopStatusCodeCount(event *events.HttpStartStop) *metrics.CounterMetric {
 	statPrefix := "http.statuscodes."
 	hostname := strings.Replace(strings.Split(event.GetUri(), "/")[0], ".", "_", -1)
 	stat := statPrefix + hostname + ".200"
