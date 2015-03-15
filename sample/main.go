@@ -27,6 +27,10 @@ func main() {
 	sender := statsd.NewStatsdClient(statsdAddress, statsdPrefix)
 	sender.CreateSocket()
 
+	// rename consumer to firehoseConsumer
+	// sender := sender.NewSender(statsd stuff)
+	// metric.Send(sender)
+
 	msgChan := make(chan *events.Envelope)
 	go func() {
 		defer close(msgChan)
@@ -43,11 +47,15 @@ func main() {
 
 		// graphite-nozzle can only handle HttpStartStop events at the moment
 		if eventType == events.Envelope_HttpStartStop {
-			metric := processor.ProcessHttpStartStop(msg)
-			fmt.Printf("Processed HttpStartStopEvent\n")
-			fmt.Printf("\t%s => %d\n", metric.Stat, metric.Value)
+			metrics := processor.ProcessHttpStartStop(msg)
 
-			sender.Timing(metric.Stat, metric.Value)
+			for _, metric := range metrics {
+				//fmt.Printf("Processed HttpStartStopEvent\n")
+				//fmt.Printf("\t%s => %d\n", metric.Stat, metric.Value)
+
+				metric.Send()
+				// sender.Timing(metric.Stat, metric.Value)
+			}
 		}
 	}
 }

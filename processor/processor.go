@@ -23,10 +23,12 @@ func NewProcessor() *Processor {
 // ridiculously nested in the Graphite web UI.
 // Note that there is a loss of precision here as the StatsD server only operates in
 // millisecond timings and the StatsD client only accepts int64s for Timing metrics.
-func (p *Processor) ProcessHttpStartStop(e *events.Envelope) *metric.TimingMetric {
+func (p *Processor) ProcessHttpStartStop(e *events.Envelope) []metric.Metric {
+	metrics := make([]metric.Metric, 2)
+
 	httpStartStopEvent := e.GetHttpStartStop()
 
-	statPrefix := "http.hostnames."
+	statPrefix := "http.responsetimes."
 	hostname := strings.Replace(strings.Split(httpStartStopEvent.GetUri(), "/")[0], ".", "_", -1)
 	stat := statPrefix + hostname
 
@@ -40,5 +42,19 @@ func (p *Processor) ProcessHttpStartStop(e *events.Envelope) *metric.TimingMetri
 		Value: durationMillis,
 	}
 
-	return timingMetric
+	statPrefix = "http.statuscodes."
+	stat = statPrefix + hostname + ".200"
+	httpStatusCode := httpStartStopEvent.GetStatusCode()
+
+	counterMetric := &metric.CounterMetric{
+		Stat:  stat,
+		Value: int64(httpStatusCode),
+	}
+
+	// convert timingMetric to a Metric
+
+	metrics[0] = metric.Metric(timingMetric)
+	metrics[1] = metric.Metric(counterMetric)
+
+	return metrics
 }

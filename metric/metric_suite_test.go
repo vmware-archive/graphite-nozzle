@@ -1,4 +1,4 @@
-package sender_test
+package metric_test
 
 import (
 	. "github.com/onsi/ginkgo"
@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func TestSender(t *testing.T) {
+func TestMetric(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Sender Suite")
+	RunSpecs(t, "Metric Suite")
 }
