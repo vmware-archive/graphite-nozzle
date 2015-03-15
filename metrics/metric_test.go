@@ -1,7 +1,7 @@
-package metric_test
+package metrics_test
 
 import (
-	. "github.com/teddyking/graphite-nozzle/metric"
+	. "github.com/teddyking/graphite-nozzle/metrics"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -45,12 +45,12 @@ var _ = Describe("Metric", func() {
 		Context("with a TimingMetric", func() {
 			It("sends the Metric to StatsD", func() {
 				fakeStatsdClient = new(FakeStatsdClient)
-				m := TimingMetric{
+				metric := TimingMetric{
 					Stat:  "http.responsetimes.api_10_244_0_34_xip_io",
 					Value: 10,
 				}
 
-				m.Send(fakeStatsdClient)
+				metric.Send(fakeStatsdClient)
 				Expect(fakeStatsdClient.timingCalled).To(BeTrue())
 				Expect(fakeStatsdClient.stat).To(Equal("http.responsetimes.api_10_244_0_34_xip_io"))
 				Expect(fakeStatsdClient.value).To(Equal(int64(10)))
@@ -60,12 +60,12 @@ var _ = Describe("Metric", func() {
 		Context("with a CounterMetric", func() {
 			It("sends the Metric to StatsD", func() {
 				fakeStatsdClient = new(FakeStatsdClient)
-				m := CounterMetric{
+				metric := CounterMetric{
 					Stat:  "http.statuscodes.api_10_244_0_34_xip_io.200",
 					Value: 1,
 				}
 
-				m.Send(fakeStatsdClient)
+				metric.Send(fakeStatsdClient)
 				Expect(fakeStatsdClient.incrCalled).To(BeTrue())
 				Expect(fakeStatsdClient.stat).To(Equal("http.statuscodes.api_10_244_0_34_xip_io.200"))
 				Expect(fakeStatsdClient.value).To(Equal(int64(1)))
@@ -75,12 +75,12 @@ var _ = Describe("Metric", func() {
 		Context("with a GaugeMetric", func() {
 			It("sends the Metric to StatsD", func() {
 				fakeStatsdClient = new(FakeStatsdClient)
-				m := GaugeMetric{
+				metric := GaugeMetric{
 					Stat:  "router__0.numCPUS",
 					Value: 4,
 				}
 
-				m.Send(fakeStatsdClient)
+				metric.Send(fakeStatsdClient)
 				Expect(fakeStatsdClient.gaugeCalled).To(BeTrue())
 				Expect(fakeStatsdClient.stat).To(Equal("router__0.numCPUS"))
 				Expect(fakeStatsdClient.value).To(Equal(int64(4)))

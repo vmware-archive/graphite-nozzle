@@ -4,7 +4,7 @@ import (
 	"strings"
 
 	"github.com/cloudfoundry/noaa/events"
-	"github.com/teddyking/graphite-nozzle/metric"
+	"github.com/teddyking/graphite-nozzle/metrics"
 )
 
 // A Processor is responsible for converting a 'raw' Event from the Firehose
@@ -23,8 +23,8 @@ func NewProcessor() *Processor {
 // ridiculously nested in the Graphite web UI.
 // Note that there is a loss of precision here as the StatsD server only operates in
 // millisecond timings and the StatsD client only accepts int64s for Timing metrics.
-func (p *Processor) ProcessHttpStartStop(e *events.Envelope) []metric.Metric {
-	metrics := make([]metric.Metric, 2)
+func (p *Processor) ProcessHttpStartStop(e *events.Envelope) []metrics.Metric {
+	m := make([]metrics.Metric, 2)
 
 	httpStartStopEvent := e.GetHttpStartStop()
 
@@ -37,7 +37,7 @@ func (p *Processor) ProcessHttpStartStop(e *events.Envelope) []metric.Metric {
 	durationNanos := stopTimestamp - startTimestamp
 	durationMillis := durationNanos / 1000000 // NB: loss of precision here
 
-	timingMetric := &metric.TimingMetric{
+	timingMetric := &metrics.TimingMetric{
 		Stat:  stat,
 		Value: durationMillis,
 	}
@@ -46,15 +46,15 @@ func (p *Processor) ProcessHttpStartStop(e *events.Envelope) []metric.Metric {
 	stat = statPrefix + hostname + ".200"
 	httpStatusCode := httpStartStopEvent.GetStatusCode()
 
-	counterMetric := &metric.CounterMetric{
+	counterMetric := &metrics.CounterMetric{
 		Stat:  stat,
 		Value: int64(httpStatusCode),
 	}
 
 	// convert timingMetric to a Metric
 
-	metrics[0] = metric.Metric(timingMetric)
-	metrics[1] = metric.Metric(counterMetric)
+	m[0] = metrics.Metric(timingMetric)
+	m[1] = metrics.Metric(counterMetric)
 
-	return metrics
+	return m
 }

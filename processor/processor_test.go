@@ -7,7 +7,7 @@ import (
 	. "github.com/onsi/gomega"
 
 	"github.com/cloudfoundry/noaa/events"
-	"github.com/teddyking/graphite-nozzle/metric"
+	"github.com/teddyking/graphite-nozzle/metrics"
 )
 
 var _ = Describe("Processor", func() {
@@ -40,14 +40,14 @@ var _ = Describe("Processor", func() {
 
 	Describe("#ProcessHttpStartStop", func() {
 		It("creates a TimingMetric for the HTTP response time", func() {
-			httpStartStopMetric := processor.ProcessHttpStartStop(event)[0].(*metric.TimingMetric)
+			httpStartStopMetric := processor.ProcessHttpStartStop(event)[0].(*metrics.TimingMetric)
 
 			Expect(httpStartStopMetric.Stat).To(Equal("http.responsetimes.api_10_244_0_34_xip_io"))
 			Expect(httpStartStopMetric.Value).To(Equal(int64(9)))
 		})
 
 		It("creates a CounterMetric for the status code", func() {
-			httpStartStopMetric := processor.ProcessHttpStartStop(event)[1].(*metric.CounterMetric)
+			httpStartStopMetric := processor.ProcessHttpStartStop(event)[1].(*metrics.CounterMetric)
 
 			Expect(httpStartStopMetric.Stat).To(Equal("http.statuscodes.api_10_244_0_34_xip_io.200"))
 			Expect(httpStartStopMetric.Value).To(Equal(int64(200)))

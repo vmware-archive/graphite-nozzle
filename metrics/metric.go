@@ -1,4 +1,4 @@
-package metric
+package metrics
 
 type StatsdClient interface {
 	Timing(string, int64) error
