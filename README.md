@@ -20,7 +20,7 @@ cd graphite-nozzle
 godep restore
 ```
 
-You may need to update the consts defined on lines [18-21](https://github.com/teddyking/graphite-nozzle/blob/master/sample/main.go#L17-L20) so that they are configured for your environment. The current values work for a bosh-lite install of CF and Graphite using the 'standard' manifests. Once that's done, build the sample app:
+You may need to update the consts defined on lines [18-21](https://github.com/teddyking/graphite-nozzle/blob/master/sample/main.go#L18-L21) so that they are configured for your environment. The current values work for a bosh-lite install of CF and Graphite using the 'standard' manifests. Once that's done, build the sample app:
 
 ```
 go build -o bin/graphite-nozzle sample/main.go
