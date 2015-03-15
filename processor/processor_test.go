@@ -12,8 +12,10 @@ import (
 
 var _ = Describe("Processor", func() {
 	var (
-		processor *Processor
-		event     *events.Envelope
+		processor          *Processor
+		event              *events.Envelope
+		httpStartStopEvent *events.HttpStartStop
+		processedMetrics   []metrics.Metric
 	)
 
 	BeforeEach(func() {
@@ -25,7 +27,7 @@ var _ = Describe("Processor", func() {
 		uri := "api.10.244.0.34.xip.io/v2/info"
 		statusCode := int32(200)
 
-		httpStartStopEvent := events.HttpStartStop{
+		httpStartStopEvent = &events.HttpStartStop{
 			StartTimestamp: &startTimestamp,
 			StopTimestamp:  &stopTimestamp,
 			Method:         &method,
@@ -34,23 +36,45 @@ var _ = Describe("Processor", func() {
 		}
 
 		event = &events.Envelope{
-			HttpStartStop: &httpStartStopEvent,
+			HttpStartStop: httpStartStopEvent,
 		}
+
+		processedMetrics = processor.ProcessHttpStartStop(event)
 	})
 
 	Describe("#ProcessHttpStartStop", func() {
-		It("creates a TimingMetric for the HTTP response time", func() {
-			httpStartStopMetric := processor.ProcessHttpStartStop(event)[0].(*metrics.TimingMetric)
+		It("returns a Metric for each of the ProcessHttpStartStop* methods", func() {
+			processedMetrics := processor.ProcessHttpStartStop(event)
 
-			Expect(httpStartStopMetric.Stat).To(Equal("http.responsetimes.api_10_244_0_34_xip_io"))
-			Expect(httpStartStopMetric.Value).To(Equal(int64(9)))
+			Expect(processedMetrics).To(HaveLen(2))
+		})
+	})
+
+	Describe("#ProcessHttpStartStopResponseTime", func() {
+		It("formats the Stat string to include the hostname", func() {
+			metric := processor.ProcessHttpStartStopResponseTime(httpStartStopEvent)
+
+			Expect(metric.Stat).To(Equal("http.responsetimes.api_10_244_0_34_xip_io"))
 		})
 
-		It("creates a CounterMetric for the status code", func() {
-			httpStartStopMetric := processor.ProcessHttpStartStop(event)[1].(*metrics.CounterMetric)
+		It("calculates the HTTP response time in milliseconds", func() {
+			metric := processor.ProcessHttpStartStopResponseTime(httpStartStopEvent)
 
-			Expect(httpStartStopMetric.Stat).To(Equal("http.statuscodes.api_10_244_0_34_xip_io.200"))
-			Expect(httpStartStopMetric.Value).To(Equal(int64(200)))
+			Expect(metric.Value).To(Equal(int64(9)))
+		})
+	})
+
+	Describe("#ProcessHttpStartStopStatusCodeCount", func() {
+		It("formats the Stat string to include the hostname and the status code", func() {
+			metric := processor.ProcessHttpStartStopStatusCodeCount(httpStartStopEvent)
+
+			Expect(metric.Stat).To(Equal("http.statuscodes.api_10_244_0_34_xip_io.200"))
+		})
+
+		It("sets the increment value for the CounterMetric to 1", func() {
+			metric := processor.ProcessHttpStartStopStatusCodeCount(httpStartStopEvent)
+
+			Expect(metric.Value).To(Equal(int64(1)))
 		})
 	})
 })

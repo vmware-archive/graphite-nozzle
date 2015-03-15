@@ -7,54 +7,49 @@ import (
 	"github.com/teddyking/graphite-nozzle/metrics"
 )
 
-// A Processor is responsible for converting a 'raw' Event from the Firehose
-// into a Metric that can be sent to StatsD.
 type Processor struct{}
 
-// Responsible for creating a new Processor.
 func NewProcessor() *Processor {
 	return &Processor{}
 }
 
-// Takes an HttpStartStop Event from the Firehose, processes it, and converts
-// it into a TimingMetric that can then be sent to StatsD.
-// The hostname is extracted from the provided URI and '.' characters
-// are replaced with '_' characters. This is so that the stats don't appear
-// ridiculously nested in the Graphite web UI.
-// Note that there is a loss of precision here as the StatsD server only operates in
-// millisecond timings and the StatsD client only accepts int64s for Timing metrics.
 func (p *Processor) ProcessHttpStartStop(e *events.Envelope) []metrics.Metric {
-	m := make([]metrics.Metric, 2)
-
+	processedMetrics := make([]metrics.Metric, 2)
 	httpStartStopEvent := e.GetHttpStartStop()
 
+	processedMetrics[0] = metrics.Metric(p.ProcessHttpStartStopResponseTime(httpStartStopEvent))
+	processedMetrics[1] = metrics.Metric(p.ProcessHttpStartStopStatusCodeCount(httpStartStopEvent))
+
+	return processedMetrics
+}
+
+func (p *Processor) ProcessHttpStartStopResponseTime(event *events.HttpStartStop) *metrics.TimingMetric {
 	statPrefix := "http.responsetimes."
-	hostname := strings.Replace(strings.Split(httpStartStopEvent.GetUri(), "/")[0], ".", "_", -1)
+	hostname := strings.Replace(strings.Split(event.GetUri(), "/")[0], ".", "_", -1)
 	stat := statPrefix + hostname
 
-	startTimestamp := httpStartStopEvent.GetStartTimestamp()
-	stopTimestamp := httpStartStopEvent.GetStopTimestamp()
+	startTimestamp := event.GetStartTimestamp()
+	stopTimestamp := event.GetStopTimestamp()
 	durationNanos := stopTimestamp - startTimestamp
 	durationMillis := durationNanos / 1000000 // NB: loss of precision here
 
-	timingMetric := &metrics.TimingMetric{
+	metric := &metrics.TimingMetric{
 		Stat:  stat,
 		Value: durationMillis,
 	}
 
-	statPrefix = "http.statuscodes."
-	stat = statPrefix + hostname + ".200"
-	httpStatusCode := httpStartStopEvent.GetStatusCode()
+	return metric
+}
 
-	counterMetric := &metrics.CounterMetric{
+func (p *Processor) ProcessHttpStartStopStatusCodeCount(event *events.HttpStartStop) *metrics.CounterMetric {
+	statPrefix := "http.statuscodes."
+	hostname := strings.Replace(strings.Split(event.GetUri(), "/")[0], ".", "_", -1)
+	stat := statPrefix + hostname + ".200"
+
+	metric := &metrics.CounterMetric{
 		Stat:  stat,
-		Value: int64(httpStatusCode),
+		Value: int64(1),
 	}
 
-	// convert timingMetric to a Metric
-
-	m[0] = metrics.Metric(timingMetric)
-	m[1] = metrics.Metric(counterMetric)
-
-	return m
+	return metric
 }
