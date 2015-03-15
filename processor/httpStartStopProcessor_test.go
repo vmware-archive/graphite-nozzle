@@ -7,7 +7,6 @@ import (
 	. "github.com/onsi/gomega"
 
 	"github.com/cloudfoundry/noaa/events"
-	"github.com/teddyking/graphite-nozzle/metrics"
 )
 
 var _ = Describe("HttpStartStopProcessor", func() {
@@ -15,7 +14,6 @@ var _ = Describe("HttpStartStopProcessor", func() {
 		processor          *HttpStartStopProcessor
 		event              *events.Envelope
 		httpStartStopEvent *events.HttpStartStop
-		processedMetrics   []metrics.Metric
 	)
 
 	BeforeEach(func() {
@@ -38,13 +36,11 @@ var _ = Describe("HttpStartStopProcessor", func() {
 		event = &events.Envelope{
 			HttpStartStop: httpStartStopEvent,
 		}
-
-		processedMetrics = processor.ProcessHttpStartStop(event)
 	})
 
-	Describe("#ProcessHttpStartStop", func() {
+	Describe("#Process", func() {
 		It("returns a Metric for each of the ProcessHttpStartStop* methods", func() {
-			processedMetrics := processor.ProcessHttpStartStop(event)
+			processedMetrics := processor.Process(event)
 
 			Expect(processedMetrics).To(HaveLen(2))
 		})

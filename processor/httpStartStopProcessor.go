@@ -13,7 +13,7 @@ func NewHttpStartStopProcessor() *HttpStartStopProcessor {
 	return &HttpStartStopProcessor{}
 }
 
-func (p *HttpStartStopProcessor) ProcessHttpStartStop(e *events.Envelope) []metrics.Metric {
+func (p *HttpStartStopProcessor) Process(e *events.Envelope) []metrics.Metric {
 	processedMetrics := make([]metrics.Metric, 2)
 	httpStartStopEvent := e.GetHttpStartStop()
 

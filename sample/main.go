@@ -11,6 +11,7 @@ import (
 	"github.com/cloudfoundry/noaa"
 	"github.com/cloudfoundry/noaa/events"
 	"github.com/quipo/statsd"
+	"github.com/teddyking/graphite-nozzle/metrics"
 	"github.com/teddyking/graphite-nozzle/processor"
 )
 
@@ -23,9 +24,12 @@ var authToken = os.Getenv("CF_ACCESS_TOKEN")
 
 func main() {
 	consumer := noaa.NewConsumer(DopplerAddress, &tls.Config{InsecureSkipVerify: true}, nil)
-	processor := processor.NewProcessor()
+	httpStartStopProcessor := processor.NewHttpStartStopProcessor()
+	valueMetricProcessor := processor.NewValueMetricProcessor()
 	sender := statsd.NewStatsdClient(statsdAddress, statsdPrefix)
 	sender.CreateSocket()
+
+	var processedMetrics []metrics.Metric
 
 	msgChan := make(chan *events.Envelope)
 	go func() {
@@ -41,11 +45,18 @@ func main() {
 	for msg := range msgChan {
 		eventType := msg.GetEventType()
 
-		// graphite-nozzle can only handle HttpStartStop events at the moment
-		if eventType == events.Envelope_HttpStartStop {
-			metrics := processor.ProcessHttpStartStop(msg)
+		// graphite-nozzle can only handle HttpStartStop and ValueMetric events at the moment
+		switch eventType {
+		case events.Envelope_HttpStartStop:
+			processedMetrics = httpStartStopProcessor.Process(msg)
+		case events.Envelope_ValueMetric:
+			processedMetrics = valueMetricProcessor.Process(msg)
+		default:
+			// do nothing
+		}
 
-			for _, metric := range metrics {
+		if len(processedMetrics) > 0 {
+			for _, metric := range processedMetrics {
 				metric.Send(sender)
 			}
 		}

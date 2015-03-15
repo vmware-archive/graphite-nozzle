@@ -42,9 +42,17 @@ bin/graphite-nozzle
 
 ## Metrics Overview
 
-At the moment graphite-nozzle only supports the following metrics, however many more are expected to be added soon :D.
+### ValueMetric
+
+Any ValueMetric Event that appears on the Firehose will be sent through to StatsD as a Gauge metric. This includes metrics such as numCPUS, numGoRoutines, memoryStats, etc. These metrics appear in the Graphite web UI under `Graphite.stats.gauges.<statsdPrefix>.ops.<Origin>`. Note that the values get sent as int64s so there may be a small loss of precision if the original values are floats.
+
+### HTTPStartStop
+
+HTTP requests passing through the Cloud Foundry routers get recorded as HTTPStartStop Events. graphite-nozzle takes these events and extracts useful information, such as the response time and status code. These metrics are then sent through to StatsD. The following table gives an overview of the HTTP metrics graphite-nozzle handles: 
 
 | Name | Description | StatsD Metric Type |
 | ---- | ----------- | ------------------ |
 | HttpStartStopResponseTime | HTTP response times in milliseconds | Timer |
 | HttpStartStopStatusCodeCount | A count of each HTTP status code | Counter |
+
+For all HTTPStartStop Events, the hostname is extracted from the URI and used in the Metric name. `.` characters are also replaced with `_` characters. This means that, for example, HTTP requests to `http://api.mycf.com/v2/info` will be recorded under `http://api_mycf_com` in the Graphite. This is to avoid polluting the Graphite web UI with hundreds of endpoints.
