@@ -9,5 +9,5 @@ import (
 
 func TestMetric(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Metric Suite")
+	RunSpecs(t, "Metrics Suite")
 }

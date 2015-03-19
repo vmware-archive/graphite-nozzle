@@ -5,22 +5,33 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+
+	"time"
 )
 
 type FakeStatsdClient struct {
-	timingCalled bool
-	incrCalled   bool
-	gaugeCalled  bool
-	fGaugeCalled bool
-	stat         string
-	value        int64
-	fValue       float64
+	timingCalled          bool
+	precisionTimingCalled bool
+	incrCalled            bool
+	gaugeCalled           bool
+	fGaugeCalled          bool
+	stat                  string
+	value                 int64
+	fValue                float64
+	precisionTimingValue  time.Duration
 }
 
 func (f *FakeStatsdClient) Timing(stat string, delta int64) error {
 	f.timingCalled = true
 	f.stat = stat
 	f.value = delta
+	return nil
+}
+
+func (f *FakeStatsdClient) PrecisionTiming(stat string, delta time.Duration) error {
+	f.precisionTimingCalled = true
+	f.stat = stat
+	f.precisionTimingValue = delta
 	return nil
 }
 
@@ -64,6 +75,21 @@ var _ = Describe("Metric", func() {
 				Expect(fakeStatsdClient.timingCalled).To(BeTrue())
 				Expect(fakeStatsdClient.stat).To(Equal("http.responsetimes.api_10_244_0_34_xip_io"))
 				Expect(fakeStatsdClient.value).To(Equal(int64(10)))
+			})
+		})
+
+		Context("with a PrecisionTimingMetric", func() {
+			It("sends the Metric to StatsD with time.Duration precision", func() {
+				fakeStatsdClient = new(FakeStatsdClient)
+				metric := PrecisionTimingMetric{
+					Stat:  "http.responsetimes.api_10_244_0_34_xip_io",
+					Value: 50 * time.Millisecond,
+				}
+
+				metric.Send(fakeStatsdClient)
+				Expect(fakeStatsdClient.precisionTimingCalled).To(BeTrue())
+				Expect(fakeStatsdClient.stat).To(Equal("http.responsetimes.api_10_244_0_34_xip_io"))
+				Expect(fakeStatsdClient.precisionTimingValue).To(Equal(50 * time.Millisecond))
 			})
 		})
 
