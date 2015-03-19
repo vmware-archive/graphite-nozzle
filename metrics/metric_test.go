@@ -11,8 +11,10 @@ type FakeStatsdClient struct {
 	timingCalled bool
 	incrCalled   bool
 	gaugeCalled  bool
+	fGaugeCalled bool
 	stat         string
 	value        int64
+	fValue       float64
 }
 
 func (f *FakeStatsdClient) Timing(stat string, delta int64) error {
@@ -36,6 +38,14 @@ func (f *FakeStatsdClient) Gauge(stat string, value int64) error {
 	return nil
 }
 
+func (f *FakeStatsdClient) FGauge(stat string, value float64) error {
+	f.fGaugeCalled = true
+	f.stat = stat
+	f.fValue = value
+
+	return nil
+}
+
 var _ = Describe("Metric", func() {
 	var (
 		fakeStatsdClient *FakeStatsdClient
@@ -43,7 +53,7 @@ var _ = Describe("Metric", func() {
 
 	Describe("#Send", func() {
 		Context("with a TimingMetric", func() {
-			It("sends the Metric to StatsD", func() {
+			It("sends the Metric to StatsD with int64 precision", func() {
 				fakeStatsdClient = new(FakeStatsdClient)
 				metric := TimingMetric{
 					Stat:  "http.responsetimes.api_10_244_0_34_xip_io",
@@ -58,7 +68,7 @@ var _ = Describe("Metric", func() {
 		})
 
 		Context("with a CounterMetric", func() {
-			It("sends the Metric to StatsD", func() {
+			It("sends the Metric to StatsD with int64 precision", func() {
 				fakeStatsdClient = new(FakeStatsdClient)
 				metric := CounterMetric{
 					Stat:  "http.statuscodes.api_10_244_0_34_xip_io.200",
@@ -73,7 +83,7 @@ var _ = Describe("Metric", func() {
 		})
 
 		Context("with a GaugeMetric", func() {
-			It("sends the Metric to StatsD", func() {
+			It("sends the Metric to StatsD with int64 precision", func() {
 				fakeStatsdClient = new(FakeStatsdClient)
 				metric := GaugeMetric{
 					Stat:  "router__0.numCPUS",
@@ -84,6 +94,21 @@ var _ = Describe("Metric", func() {
 				Expect(fakeStatsdClient.gaugeCalled).To(BeTrue())
 				Expect(fakeStatsdClient.stat).To(Equal("router__0.numCPUS"))
 				Expect(fakeStatsdClient.value).To(Equal(int64(4)))
+			})
+		})
+
+		Context("with an FGaugeMetric", func() {
+			It("sends the Metric to StatsD with float64 precision", func() {
+				fakeStatsdClient = new(FakeStatsdClient)
+				metric := FGaugeMetric{
+					Stat:  "router__0.numCPUS",
+					Value: 4,
+				}
+
+				metric.Send(fakeStatsdClient)
+				Expect(fakeStatsdClient.fGaugeCalled).To(BeTrue())
+				Expect(fakeStatsdClient.stat).To(Equal("router__0.numCPUS"))
+				Expect(fakeStatsdClient.fValue).To(Equal(float64(4)))
 			})
 		})
 	})
