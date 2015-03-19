@@ -55,7 +55,7 @@ var _ = Describe("ValueMetricProcessor", func() {
 		It("sets the Metric Value to the value of the ValueMetric", func() {
 			metric := processor.ProcessValueMetric(valueMetricEvent, origin)
 
-			Expect(metric.Value).To(Equal(int64(4)))
+			Expect(metric.Value).To(Equal(float64(4)))
 		})
 	})
 })

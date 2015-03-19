@@ -20,14 +20,14 @@ func (p *ValueMetricProcessor) Process(e *events.Envelope) []metrics.Metric {
 	return processedMetrics
 }
 
-func (p *ValueMetricProcessor) ProcessValueMetric(event *events.ValueMetric, origin string) *metrics.GaugeMetric {
+func (p *ValueMetricProcessor) ProcessValueMetric(event *events.ValueMetric, origin string) *metrics.FGaugeMetric {
 	statPrefix := "ops." + origin + "."
 	valueMetricName := event.GetName()
 	stat := statPrefix + valueMetricName
 
-	metric := metrics.GaugeMetric{
+	metric := metrics.FGaugeMetric{
 		Stat:  stat,
-		Value: int64(event.GetValue()),
+		Value: event.GetValue(),
 	}
 
 	return &metric

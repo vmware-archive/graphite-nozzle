@@ -63,7 +63,7 @@ For all HTTPStartStop Events, the hostname is extracted from the URI and used in
 
 ### ValueMetric
 
-Any ValueMetric Event that appears on the Firehose will be sent through to StatsD as a Gauge metric. This includes metrics such as numCPUS, numGoRoutines, memoryStats, etc. These metrics appear in the Graphite web UI under `Graphite.stats.gauges.<statsdPrefix>.ops.<Origin>`. Note that the values get sent as int64s so there may be a small loss of precision if the original values are floats.
+Any ValueMetric Event that appears on the Firehose will be sent through to StatsD as a Gauge metric. This includes metrics such as numCPUS, numGoRoutines, memoryStats, etc. These metrics appear in the Graphite web UI under `Graphite.stats.gauges.<statsdPrefix>.ops.<Origin>`.
 
 ## Testing
 
