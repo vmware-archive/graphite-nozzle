@@ -1,6 +1,6 @@
 # graphite-nozzle
 
-This library consumes events off the Cloud Foundry Firehose, processes them, and then sends them off to a StatsD endpoint.
+This library consumes events off the Cloud Foundry Firehose, processes them, and then sends them off to a StatsD endpoint. Note that it is still being developed and shouldn't be considered production-ready.
 
 ## Getting Started
 
@@ -49,6 +49,10 @@ Following is a brief overview of the metrics that graphite-nozzle will extract f
 ### ContainerMetric
 
 CPU, RAM and disk usage metrics for app containers will be sent through to StatsD as a Gauge metric. Note that ContainerMetric Events will not appear on the Firehose by default (at the moment) so you'll need to run a separate app to generate these. There is a sample ContainerMetric-generating app included in the noaa repository [here](https://github.com/cloudfoundry/noaa/tree/master/container_metrics_sample). These metrics appear in the Graphite Web UI under `Graphite.stats.gauges.<statsdPrefix>.apps.<appID>.<containerMetric>.<instanceIndex>`.
+
+### Heartbeat
+
+Heartbeat Events indicate liveness of the emitter and provide counts of the number of Events processed by the emitter. These metrics get sent through to StatsD as Gauge metrics. graphite-nozzle also increments a Counter metric for each component whenever a Heartbeat Event is received. These metrics appear in the Graphite Web UI under `Graphite.stats.gauges.<statsdPrefix>.ops.<Origin>.heartbeats.*`.
 
 ### HTTPStartStop
 
