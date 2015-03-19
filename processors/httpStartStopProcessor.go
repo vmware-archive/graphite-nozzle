@@ -4,8 +4,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/CloudCredo/graphite-nozzle/metrics"
 	"github.com/cloudfoundry/noaa/events"
-	"github.com/teddyking/graphite-nozzle/metrics"
 )
 
 type HttpStartStopProcessor struct{}

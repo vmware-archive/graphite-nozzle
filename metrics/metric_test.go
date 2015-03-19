@@ -1,7 +1,7 @@
 package metrics_test
 
 import (
-	. "github.com/teddyking/graphite-nozzle/metrics"
+	. "github.com/CloudCredo/graphite-nozzle/metrics"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"

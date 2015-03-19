@@ -15,12 +15,12 @@ An example app is included under the sample directory. To run the app you'll nee
 Once you've met all the prerequisites, you'll need to download the library and install the dependencies:
 
 ```
-git clone git@github.com:teddyking/graphite-nozzle.git
+git clone git@github.com:CloudCredo/graphite-nozzle.git
 cd graphite-nozzle
 godep restore
 ```
 
-You may need to update the consts defined on lines [18-21](https://github.com/teddyking/graphite-nozzle/blob/master/sample/main.go#L18-L21) so that they are configured for your environment. The current values work for a bosh-lite install of CF and Graphite using the 'standard' manifests. Once that's done, build the sample app:
+You may need to update the consts defined on lines [18-21](https://github.com/CloudCredo/graphite-nozzle/blob/master/sample/main.go#L18-L21) so that they are configured for your environment. The current values work for a bosh-lite install of CF and Graphite using the 'standard' manifests. Once that's done, build the sample app:
 
 ```
 go build -o bin/graphite-nozzle sample/main.go
@@ -48,7 +48,7 @@ Any ValueMetric Event that appears on the Firehose will be sent through to Stats
 
 ### HTTPStartStop
 
-HTTP requests passing through the Cloud Foundry routers get recorded as HTTPStartStop Events. graphite-nozzle takes these events and extracts useful information, such as the response time and status code. These metrics are then sent through to StatsD. The following table gives an overview of the HTTP metrics graphite-nozzle handles: 
+HTTP requests passing through the Cloud Foundry routers get recorded as HTTPStartStop Events. graphite-nozzle takes these events and extracts useful information, such as the response time and status code. These metrics are then sent through to StatsD. The following table gives an overview of the HTTP metrics graphite-nozzle handles:
 
 | Name | Description | StatsD Metric Type |
 | ---- | ----------- | ------------------ |

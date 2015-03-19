@@ -8,11 +8,11 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/CloudCredo/graphite-nozzle/metrics"
+	"github.com/CloudCredo/graphite-nozzle/processors"
 	"github.com/cloudfoundry/noaa"
 	"github.com/cloudfoundry/noaa/events"
 	"github.com/quipo/statsd"
-	"github.com/teddyking/graphite-nozzle/metrics"
-	"github.com/teddyking/graphite-nozzle/processors"
 )
 
 const DopplerAddress = "wss://doppler.10.244.0.34.xip.io:443"
