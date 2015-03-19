@@ -15,6 +15,8 @@ An example app is included under the sample directory. To run the app you'll nee
 Once you've met all the prerequisites, you'll need to download the library and install the dependencies:
 
 ```
+mkdir -p $GOPATH/src/github.com/CloudCredo
+cd $GOPATH/src/github.com/CloudCredo
 git clone git@github.com:CloudCredo/graphite-nozzle.git
 cd graphite-nozzle
 godep restore
@@ -42,9 +44,11 @@ bin/graphite-nozzle
 
 ## Metrics Overview
 
-### ValueMetric
+Following is a brief overview of the metrics that graphite-nozzle will extract from the Firehose and send off to Graphite.
 
-Any ValueMetric Event that appears on the Firehose will be sent through to StatsD as a Gauge metric. This includes metrics such as numCPUS, numGoRoutines, memoryStats, etc. These metrics appear in the Graphite web UI under `Graphite.stats.gauges.<statsdPrefix>.ops.<Origin>`. Note that the values get sent as int64s so there may be a small loss of precision if the original values are floats.
+### ContainerMetric
+
+CPU, RAM and disk usage metrics for app containers will be sent through to StatsD as a Gauge metric. Note that ContainerMetric Events will not appear on the Firehose by default (at the moment) so you'll need to run a separate app to generate these. There is a sample ContainerMetric-generating app included in the noaa repository [here](https://github.com/cloudfoundry/noaa/tree/master/container_metrics_sample). These metrics appear in the Graphite Web UI under `Graphite.stats.gauges.<statsdPrefix>.apps.<appID>.<containerMetric>.<instanceIndex>`.
 
 ### HTTPStartStop
 
@@ -55,4 +59,19 @@ HTTP requests passing through the Cloud Foundry routers get recorded as HTTPStar
 | HttpStartStopResponseTime | HTTP response times in milliseconds | Timer |
 | HttpStartStopStatusCodeCount | A count of each HTTP status code | Counter |
 
-For all HTTPStartStop Events, the hostname is extracted from the URI and used in the Metric name. `.` characters are also replaced with `_` characters. This means that, for example, HTTP requests to `http://api.mycf.com/v2/info` will be recorded under `http://api_mycf_com` in the Graphite. This is to avoid polluting the Graphite web UI with hundreds of endpoints.
+For all HTTPStartStop Events, the hostname is extracted from the URI and used in the Metric name. `.` characters are also replaced with `_` characters. This means that, for example, HTTP requests to `http://api.mycf.com/v2/info` will be recorded under `http://api_mycf_com` in the Graphite web UI. This is to avoid polluting the UI with hundreds of endpoints.
+
+### ValueMetric
+
+Any ValueMetric Event that appears on the Firehose will be sent through to StatsD as a Gauge metric. This includes metrics such as numCPUS, numGoRoutines, memoryStats, etc. These metrics appear in the Graphite web UI under `Graphite.stats.gauges.<statsdPrefix>.ops.<Origin>`. Note that the values get sent as int64s so there may be a small loss of precision if the original values are floats.
+
+## Testing
+
+To run the test suite, first make sure you have ginkgo and gomega installed:
+
+```
+go get github.com/onsi/ginkgo/ginkgo
+go get github.com/onsi/gomega
+```
+
+Then run `ginkgo -r` from root of this repository.
