@@ -24,11 +24,7 @@ func (p *ValueMetricProcessor) ProcessValueMetric(event *events.ValueMetric, ori
 	statPrefix := "ops." + origin + "."
 	valueMetricName := event.GetName()
 	stat := statPrefix + valueMetricName
+	metric := metrics.NewFGaugeMetric(stat, event.GetValue())
 
-	metric := metrics.FGaugeMetric{
-		Stat:  stat,
-		Value: event.GetValue(),
-	}
-
-	return &metric
+	return metric
 }

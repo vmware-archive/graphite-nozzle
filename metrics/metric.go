@@ -39,6 +39,41 @@ type PrecisionTimingMetric struct {
 	Value time.Duration
 }
 
+func NewCounterMetric(stat string, value int64) *CounterMetric {
+	return &CounterMetric{
+		Stat:  stat,
+		Value: value,
+	}
+}
+
+func NewGaugeMetric(stat string, value int64) *GaugeMetric {
+	return &GaugeMetric{
+		Stat:  stat,
+		Value: value,
+	}
+}
+
+func NewFGaugeMetric(stat string, value float64) *FGaugeMetric {
+	return &FGaugeMetric{
+		Stat:  stat,
+		Value: value,
+	}
+}
+
+func NewTimingMetric(stat string, value int64) *TimingMetric {
+	return &TimingMetric{
+		Stat:  stat,
+		Value: value,
+	}
+}
+
+func NewPrecisionTimingMetric(stat string, value time.Duration) *PrecisionTimingMetric {
+	return &PrecisionTimingMetric{
+		Stat:  stat,
+		Value: value,
+	}
+}
+
 func (m CounterMetric) Send(statsdClient StatsdClient) error {
 	err := statsdClient.Incr(m.Stat, m.Value)
 	return err

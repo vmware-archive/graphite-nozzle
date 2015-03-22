@@ -26,40 +26,28 @@ func (p *HeartbeatProcessor) Process(e *events.Envelope) []metrics.Metric {
 
 func (p *HeartbeatProcessor) ProcessHeartbeatCount(e *events.Heartbeat, origin string) *metrics.CounterMetric {
 	stat := "ops." + origin + ".heartbeats.count"
-	metric := metrics.CounterMetric{
-		Stat:  stat,
-		Value: int64(1),
-	}
+	metric := metrics.NewCounterMetric(stat, int64(1))
 
-	return &metric
+	return metric
 }
 
 func (p *HeartbeatProcessor) ProcessHeartbeatEventsSentCount(e *events.Heartbeat, origin string) *metrics.GaugeMetric {
 	stat := "ops." + origin + ".heartbeats.eventsSentCount"
-	metric := metrics.GaugeMetric{
-		Stat:  stat,
-		Value: int64(e.GetSentCount()),
-	}
+	metric := metrics.NewGaugeMetric(stat, int64(e.GetSentCount()))
 
-	return &metric
+	return metric
 }
 
 func (p *HeartbeatProcessor) ProcessHeartbeatEventsReceivedCount(e *events.Heartbeat, origin string) *metrics.GaugeMetric {
 	stat := "ops." + origin + ".heartbeats.eventsReceivedCount"
-	metric := metrics.GaugeMetric{
-		Stat:  stat,
-		Value: int64(e.GetReceivedCount()),
-	}
+	metric := metrics.NewGaugeMetric(stat, int64(e.GetReceivedCount()))
 
-	return &metric
+	return metric
 }
 
 func (p *HeartbeatProcessor) ProcessHeartbeatEventsErrorCount(e *events.Heartbeat, origin string) *metrics.GaugeMetric {
 	stat := "ops." + origin + ".heartbeats.eventsErrorCount"
-	metric := metrics.GaugeMetric{
-		Stat:  stat,
-		Value: int64(e.GetErrorCount()),
-	}
+	metric := metrics.NewGaugeMetric(stat, int64(e.GetErrorCount()))
 
-	return &metric
+	return metric
 }

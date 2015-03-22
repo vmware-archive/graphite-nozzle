@@ -29,12 +29,9 @@ func (p *ContainerMetricProcessor) ProcessContainerMetricCPU(e *events.Container
 	instanceIndex := strconv.Itoa(int(e.GetInstanceIndex()))
 
 	stat := "apps." + appID + ".cpu." + instanceIndex
-	metric := metrics.GaugeMetric{
-		Stat:  stat,
-		Value: int64(e.GetCpuPercentage()),
-	}
+	metric := metrics.NewGaugeMetric(stat, int64(e.GetCpuPercentage()))
 
-	return metric
+	return *metric
 }
 
 func (p *ContainerMetricProcessor) ProcessContainerMetricMemory(e *events.ContainerMetric) metrics.GaugeMetric {
@@ -42,12 +39,9 @@ func (p *ContainerMetricProcessor) ProcessContainerMetricMemory(e *events.Contai
 	instanceIndex := strconv.Itoa(int(e.GetInstanceIndex()))
 
 	stat := "apps." + appID + ".memoryBytes." + instanceIndex
-	metric := metrics.GaugeMetric{
-		Stat:  stat,
-		Value: int64(e.GetMemoryBytes()),
-	}
+	metric := metrics.NewGaugeMetric(stat, int64(e.GetMemoryBytes()))
 
-	return metric
+	return *metric
 }
 
 func (p *ContainerMetricProcessor) ProcessContainerMetricDisk(e *events.ContainerMetric) metrics.GaugeMetric {
@@ -55,10 +49,7 @@ func (p *ContainerMetricProcessor) ProcessContainerMetricDisk(e *events.Containe
 	instanceIndex := strconv.Itoa(int(e.GetInstanceIndex()))
 
 	stat := "apps." + appID + ".diskBytes." + instanceIndex
-	metric := metrics.GaugeMetric{
-		Stat:  stat,
-		Value: int64(e.GetDiskBytes()),
-	}
+	metric := metrics.NewGaugeMetric(stat, int64(e.GetDiskBytes()))
 
-	return metric
+	return *metric
 }

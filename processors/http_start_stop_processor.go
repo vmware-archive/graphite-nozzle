@@ -33,11 +33,7 @@ func (p *HttpStartStopProcessor) ProcessHttpStartStopResponseTime(event *events.
 	stopTimestamp := event.GetStopTimestamp()
 	durationNanos := stopTimestamp - startTimestamp
 	durationMillis := durationNanos / 1000000 // NB: loss of precision here
-
-	metric := &metrics.TimingMetric{
-		Stat:  stat,
-		Value: durationMillis,
-	}
+	metric := metrics.NewTimingMetric(stat, durationMillis)
 
 	return metric
 }
@@ -46,11 +42,7 @@ func (p *HttpStartStopProcessor) ProcessHttpStartStopStatusCodeCount(event *even
 	statPrefix := "http.statuscodes."
 	hostname := strings.Replace(strings.Split(event.GetUri(), "/")[0], ".", "_", -1)
 	stat := statPrefix + hostname + "." + strconv.Itoa(int(event.GetStatusCode()))
-
-	metric := &metrics.CounterMetric{
-		Stat:  stat,
-		Value: int64(1),
-	}
+	metric := metrics.NewCounterMetric(stat, int64(1))
 
 	return metric
 }
