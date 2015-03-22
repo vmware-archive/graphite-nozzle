@@ -1,6 +1,8 @@
 package metrics_test
 
 import (
+	"errors"
+
 	. "github.com/CloudCredo/graphite-nozzle/metrics"
 
 	. "github.com/onsi/ginkgo"
@@ -54,7 +56,7 @@ func (f *FakeStatsdClient) FGauge(stat string, value float64) error {
 	f.stat = stat
 	f.fValue = value
 
-	return nil
+	return errors.New("StatsdClientSendError")
 }
 
 var _ = Describe("Metric", func() {
@@ -63,24 +65,12 @@ var _ = Describe("Metric", func() {
 	)
 
 	Describe("#Send", func() {
-		Context("with a TimingMetric", func() {
-			It("sends the Metric to StatsD with int64 precision", func() {
-				fakeStatsdClient = new(FakeStatsdClient)
-				metric := TimingMetric{
-					Stat:  "http.responsetimes.api_10_244_0_34_xip_io",
-					Value: 10,
-				}
-
-				metric.Send(fakeStatsdClient)
-				Expect(fakeStatsdClient.timingCalled).To(BeTrue())
-				Expect(fakeStatsdClient.stat).To(Equal("http.responsetimes.api_10_244_0_34_xip_io"))
-				Expect(fakeStatsdClient.value).To(Equal(int64(10)))
-			})
+		BeforeEach(func() {
+			fakeStatsdClient = new(FakeStatsdClient)
 		})
 
 		Context("with a PrecisionTimingMetric", func() {
 			It("sends the Metric to StatsD with time.Duration precision", func() {
-				fakeStatsdClient = new(FakeStatsdClient)
 				metric := PrecisionTimingMetric{
 					Stat:  "http.responsetimes.api_10_244_0_34_xip_io",
 					Value: 50 * time.Millisecond,
@@ -95,7 +85,6 @@ var _ = Describe("Metric", func() {
 
 		Context("with a CounterMetric", func() {
 			It("sends the Metric to StatsD with int64 precision", func() {
-				fakeStatsdClient = new(FakeStatsdClient)
 				metric := CounterMetric{
 					Stat:  "http.statuscodes.api_10_244_0_34_xip_io.200",
 					Value: 1,
@@ -110,7 +99,6 @@ var _ = Describe("Metric", func() {
 
 		Context("with a GaugeMetric", func() {
 			It("sends the Metric to StatsD with int64 precision", func() {
-				fakeStatsdClient = new(FakeStatsdClient)
 				metric := GaugeMetric{
 					Stat:  "router__0.numCPUS",
 					Value: 4,
@@ -125,7 +113,6 @@ var _ = Describe("Metric", func() {
 
 		Context("with an FGaugeMetric", func() {
 			It("sends the Metric to StatsD with float64 precision", func() {
-				fakeStatsdClient = new(FakeStatsdClient)
 				metric := FGaugeMetric{
 					Stat:  "router__0.numCPUS",
 					Value: 4,
@@ -135,6 +122,30 @@ var _ = Describe("Metric", func() {
 				Expect(fakeStatsdClient.fGaugeCalled).To(BeTrue())
 				Expect(fakeStatsdClient.stat).To(Equal("router__0.numCPUS"))
 				Expect(fakeStatsdClient.fValue).To(Equal(float64(4)))
+			})
+		})
+
+		Context("when the StatsdClient doesn't return an error", func() {
+			It("doesn't return an error", func() {
+				metric := GaugeMetric{
+					Stat:  "router__0.numCPUS",
+					Value: 4,
+				}
+
+				err := metric.Send(fakeStatsdClient)
+				Expect(err).ToNot(HaveOccurred())
+			})
+		})
+
+		Context("when the StatsdClient returns an error", func() {
+			It("returns the error", func() {
+				metric := FGaugeMetric{
+					Stat:  "router__0.numCPUS",
+					Value: 4,
+				}
+
+				err := metric.Send(fakeStatsdClient)
+				Expect(err).To(MatchError(errors.New("StatsdClientSendError")))
 			})
 		})
 	})

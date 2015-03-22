@@ -40,26 +40,26 @@ type PrecisionTimingMetric struct {
 }
 
 func (m CounterMetric) Send(statsdClient StatsdClient) error {
-	statsdClient.Incr(m.Stat, m.Value)
-	return nil
+	err := statsdClient.Incr(m.Stat, m.Value)
+	return err
 }
 
 func (m GaugeMetric) Send(statsdClient StatsdClient) error {
-	statsdClient.Gauge(m.Stat, m.Value)
-	return nil
+	err := statsdClient.Gauge(m.Stat, m.Value)
+	return err
 }
 
 func (m FGaugeMetric) Send(statsdClient StatsdClient) error {
-	statsdClient.FGauge(m.Stat, m.Value)
-	return nil
+	err := statsdClient.FGauge(m.Stat, m.Value)
+	return err
 }
 
 func (m TimingMetric) Send(statsdClient StatsdClient) error {
-	statsdClient.Timing(m.Stat, m.Value)
-	return nil
+	err := statsdClient.Timing(m.Stat, m.Value)
+	return err
 }
 
 func (m PrecisionTimingMetric) Send(statsdClient StatsdClient) error {
-	statsdClient.PrecisionTiming(m.Stat, m.Value)
-	return nil
+	err := statsdClient.PrecisionTiming(m.Stat, m.Value)
+	return err
 }
