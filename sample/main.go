@@ -68,5 +68,6 @@ func main() {
 				metric.Send(sender)
 			}
 		}
+		processedMetrics = nil
 	}
 }
