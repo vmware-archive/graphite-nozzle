@@ -63,7 +63,10 @@ HTTP requests passing through the Cloud Foundry routers get recorded as HTTPStar
 | HttpStartStopResponseTime | HTTP response times in milliseconds | Timer |
 | HttpStartStopStatusCodeCount | A count of each HTTP status code | Counter |
 
+
 For all HTTPStartStop Events, the hostname is extracted from the URI and used in the Metric name. `.` characters are also replaced with `_` characters. This means that, for example, HTTP requests to `http://api.mycf.com/v2/info` will be recorded under `http://api_mycf_com` in the Graphite web UI. This is to avoid polluting the UI with hundreds of endpoints.
+
+Also note that 2 HTTPStartStop Events are generated per HTTP request to an application running in Cloud Foundry. graphite-nozzle will only increment the StatusCode counter for the HttpStartStop Events where `PeerType` == `PeerType_Client`. This is in order to accurately graph the incoming HTTP requests. 
 
 ### ValueMetric
 

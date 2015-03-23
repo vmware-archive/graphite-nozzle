@@ -24,6 +24,7 @@ var _ = Describe("HttpStartStopProcessor", func() {
 		method := events.Method_GET
 		uri := "api.10.244.0.34.xip.io/v2/info"
 		statusCode := int32(200)
+		peerType := events.PeerType_Client
 
 		httpStartStopEvent = &events.HttpStartStop{
 			StartTimestamp: &startTimestamp,
@@ -31,6 +32,7 @@ var _ = Describe("HttpStartStopProcessor", func() {
 			Method:         &method,
 			Uri:            &uri,
 			StatusCode:     &statusCode,
+			PeerType:       &peerType,
 		}
 
 		event = &events.Envelope{
@@ -79,10 +81,22 @@ var _ = Describe("HttpStartStopProcessor", func() {
 			})
 		})
 
-		It("sets the increment value for the CounterMetric to 1", func() {
-			metric := processor.ProcessHttpStartStopStatusCodeCount(httpStartStopEvent)
+		Context("when PeerType == PeerType_Client", func() {
+			It("sets the increment value for the CounterMetric to 1", func() {
+				metric := processor.ProcessHttpStartStopStatusCodeCount(httpStartStopEvent)
 
-			Expect(metric.Value).To(Equal(int64(1)))
+				Expect(metric.Value).To(Equal(int64(1)))
+			})
+		})
+
+		Context("when PeerType == PeerType_Server", func() {
+			It("sets the increment value for the CounterMetric to 0", func() {
+				peerType := events.PeerType_Server
+				httpStartStopEvent.PeerType = &peerType
+				metric := processor.ProcessHttpStartStopStatusCodeCount(httpStartStopEvent)
+
+				Expect(metric.Value).To(Equal(int64(0)))
+			})
 		})
 	})
 })

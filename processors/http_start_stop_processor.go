@@ -39,10 +39,19 @@ func (p *HttpStartStopProcessor) ProcessHttpStartStopResponseTime(event *events.
 }
 
 func (p *HttpStartStopProcessor) ProcessHttpStartStopStatusCodeCount(event *events.HttpStartStop) *metrics.CounterMetric {
+	var incrementValue int64
+
 	statPrefix := "http.statuscodes."
 	hostname := strings.Replace(strings.Split(event.GetUri(), "/")[0], ".", "_", -1)
 	stat := statPrefix + hostname + "." + strconv.Itoa(int(event.GetStatusCode()))
-	metric := metrics.NewCounterMetric(stat, int64(1))
+
+	if event.GetPeerType() == events.PeerType_Client {
+		incrementValue = 1
+	} else {
+		incrementValue = 0
+	}
+
+	metric := metrics.NewCounterMetric(stat, incrementValue)
 
 	return metric
 }
