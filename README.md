@@ -7,7 +7,7 @@ This library consumes events off the Cloud Foundry Firehose, processes them, and
 An example app is included under the sample directory. To run the app you'll need:
 
 * A user who has access to the Cloud Foundry Firehose (see [here](http://cloudcredo.com/cloud-foundry-firehose-and-friends/) for a tutorial on how to create one).
-* A Graphite and StatsD server (see [here](https://github.com/teddyking/graphite-boshrelease) for a Graphite/StatsD BOSH release).
+* A Graphite and StatsD server (see [here](https://github.com/CloudCredo/graphite-statsd-boshrelease) for a Graphite/StatsD BOSH release).
 * Golang installed and configured (see [here](https://golang.org/doc/install) for a tutorial on how to do this).
 * godep (see [here](https://github.com/tools/godep) for installation instructions).
 * The cf cli > 6.7.0 (optional, but useful for retrieving an oauth token that's required by the sample app. It can be downloaded [here](https://github.com/cloudfoundry/cli/releases)).
@@ -66,7 +66,7 @@ HTTP requests passing through the Cloud Foundry routers get recorded as HTTPStar
 
 For all HTTPStartStop Events, the hostname is extracted from the URI and used in the Metric name. `.` characters are also replaced with `_` characters. This means that, for example, HTTP requests to `http://api.mycf.com/v2/info` will be recorded under `http://api_mycf_com` in the Graphite web UI. This is to avoid polluting the UI with hundreds of endpoints.
 
-Also note that 2 HTTPStartStop Events are generated per HTTP request to an application running in Cloud Foundry. graphite-nozzle will only increment the StatusCode counter for the HttpStartStop Events where `PeerType` == `PeerType_Client`. This is in order to accurately graph the incoming HTTP requests. 
+Also note that 2 HTTPStartStop Events are generated per HTTP request to an application running in Cloud Foundry. graphite-nozzle will only increment the StatusCode counter for the HttpStartStop Events where `PeerType` == `PeerType_Client`. This is in order to accurately graph the incoming HTTP requests.
 
 ### ValueMetric
 
