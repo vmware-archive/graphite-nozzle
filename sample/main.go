@@ -29,6 +29,7 @@ func main() {
 	valueMetricProcessor := processors.NewValueMetricProcessor()
 	containerMetricProcessor := processors.NewContainerMetricProcessor()
 	heartbeatProcessor := processors.NewHeartbeatProcessor()
+	counterProcessor := processors.NewCounterProcessor()
 
 	sender := statsd.NewStatsdClient(statsdAddress, statsdPrefix)
 	sender.CreateSocket()
@@ -49,10 +50,13 @@ func main() {
 	for msg := range msgChan {
 		eventType := msg.GetEventType()
 
-		// graphite-nozzle can handle ContainerMetric, Heartbeat, HttpStartStop and ValueMetric events at the moment
+		// graphite-nozzle can handle CounterEvent, ContainerMetric, Heartbeat,
+		// HttpStartStop and ValueMetric events
 		switch eventType {
 		case events.Envelope_ContainerMetric:
 			processedMetrics = containerMetricProcessor.Process(msg)
+		case events.Envelope_CounterEvent:
+			processedMetrics = counterProcessor.Process(msg)
 		case events.Envelope_Heartbeat:
 			processedMetrics = heartbeatProcessor.Process(msg)
 		case events.Envelope_HttpStartStop:
