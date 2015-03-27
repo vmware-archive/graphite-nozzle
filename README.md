@@ -46,6 +46,10 @@ bin/graphite-nozzle
 
 Following is a brief overview of the metrics that graphite-nozzle will extract from the Firehose and send off to Graphite.
 
+### CounterEvent
+
+CounterEvents represent the increment of a counter. graphite-nozzle will send these through to StatsD as a Counter metric. These metrics appear in the Graphite Web UI under `Graphite.stats.counters.<statsdPrefix>.ops.<counterName>`.
+
 ### ContainerMetric
 
 CPU, RAM and disk usage metrics for app containers will be sent through to StatsD as a Gauge metric. Note that ContainerMetric Events will not appear on the Firehose by default (at the moment) so you'll need to run a separate app to generate these. There is a sample ContainerMetric-generating app included in the noaa repository [here](https://github.com/cloudfoundry/noaa/tree/master/container_metrics_sample). These metrics appear in the Graphite Web UI under `Graphite.stats.gauges.<statsdPrefix>.apps.<appID>.<containerMetric>.<instanceIndex>`.
