@@ -4,7 +4,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/CloudCredo/graphite-nozzle/metrics"
+	"github.com/cloudcredo/graphite-nozzle/metrics"
 	"github.com/cloudfoundry/noaa/events"
 )
 

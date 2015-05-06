@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/CloudCredo/graphite-nozzle/metrics"
-	"github.com/CloudCredo/graphite-nozzle/processors"
+	"github.com/cloudcredo/graphite-nozzle/metrics"
+	"github.com/cloudcredo/graphite-nozzle/processors"
 	"github.com/cloudfoundry/noaa"
 	"github.com/cloudfoundry/noaa/events"
 	"github.com/quipo/statsd"

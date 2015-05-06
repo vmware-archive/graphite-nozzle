@@ -3,7 +3,7 @@ package metrics_test
 import (
 	"errors"
 
-	. "github.com/CloudCredo/graphite-nozzle/metrics"
+	. "github.com/cloudcredo/graphite-nozzle/metrics"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
