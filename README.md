@@ -15,8 +15,8 @@ An example app is included under the sample directory. To run the app you'll nee
 Once you've met all the prerequisites, you'll need to download the library and install the dependencies:
 
 ```
-mkdir -p $GOPATH/src/github.com/CloudCredo
-cd $GOPATH/src/github.com/CloudCredo
+mkdir -p $GOPATH/src/github.com/cloudcredo
+cd $GOPATH/src/github.com/cloudcredo
 git clone git@github.com:CloudCredo/graphite-nozzle.git
 cd graphite-nozzle
 godep restore
