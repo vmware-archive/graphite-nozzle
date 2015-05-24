@@ -44,7 +44,7 @@ var _ = Describe("HttpStartStopProcessor", func() {
 		It("returns a Metric for each of the ProcessHttpStartStop* methods", func() {
 			processedMetrics := processor.Process(event)
 
-			Expect(processedMetrics).To(HaveLen(2))
+			Expect(processedMetrics).To(HaveLen(4))
 		})
 	})
 
@@ -69,6 +69,18 @@ var _ = Describe("HttpStartStopProcessor", func() {
 
 				Expect(metric.Stat).To(Equal("http.statuscodes.api_10_244_0_34_xip_io.200"))
 			})
+
+			It("it does not increment the error counter by one", func() {
+				metric := processor.ProcessHttpStartStopHttpErrorCount(httpStartStopEvent)
+				Expect(metric.Stat).To(Equal("http.errors.api_10_244_0_34_xip_io"))
+				Expect(metric.Value).To(Equal(int64(0)))
+			})
+
+			It("increments the requests counter by one", func() {
+				metric := processor.ProcessHttpStartStopHttpRequestCount(httpStartStopEvent)
+				Expect(metric.Stat).To(Equal("http.requests.api_10_244_0_34_xip_io"))
+				Expect(metric.Value).To(Equal(int64(1)))
+			})
 		})
 
 		Context("with a HTTP 404 status code", func() {
@@ -78,6 +90,22 @@ var _ = Describe("HttpStartStopProcessor", func() {
 				metric := processor.ProcessHttpStartStopStatusCodeCount(httpStartStopEvent)
 
 				Expect(metric.Stat).To(Equal("http.statuscodes.api_10_244_0_34_xip_io.404"))
+			})
+
+			It("increments the error counter by one", func() {
+				statusCode := int32(404)
+				httpStartStopEvent.StatusCode = &statusCode
+				metric := processor.ProcessHttpStartStopHttpErrorCount(httpStartStopEvent)
+				Expect(metric.Stat).To(Equal("http.errors.api_10_244_0_34_xip_io"))
+				Expect(metric.Value).To(Equal(int64(1)))
+			})
+
+			It("increments the requests counter by one", func() {
+				statusCode := int32(404)
+				httpStartStopEvent.StatusCode = &statusCode
+				metric := processor.ProcessHttpStartStopHttpRequestCount(httpStartStopEvent)
+				Expect(metric.Stat).To(Equal("http.requests.api_10_244_0_34_xip_io"))
+				Expect(metric.Value).To(Equal(int64(1)))
 			})
 		})
 
@@ -98,5 +126,6 @@ var _ = Describe("HttpStartStopProcessor", func() {
 				Expect(metric.Value).To(Equal(int64(0)))
 			})
 		})
+
 	})
 })
