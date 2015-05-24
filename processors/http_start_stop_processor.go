@@ -15,11 +15,13 @@ func NewHttpStartStopProcessor() *HttpStartStopProcessor {
 }
 
 func (p *HttpStartStopProcessor) Process(e *events.Envelope) []metrics.Metric {
-	processedMetrics := make([]metrics.Metric, 2)
+	processedMetrics := make([]metrics.Metric, 4)
 	httpStartStopEvent := e.GetHttpStartStop()
 
 	processedMetrics[0] = metrics.Metric(p.ProcessHttpStartStopResponseTime(httpStartStopEvent))
 	processedMetrics[1] = metrics.Metric(p.ProcessHttpStartStopStatusCodeCount(httpStartStopEvent))
+	processedMetrics[2] = metrics.Metric(p.ProcessHttpStartStopHttpErrorCount(httpStartStopEvent))
+	processedMetrics[3] = metrics.Metric(p.ProcessHttpStartStopHttpRequestCount(httpStartStopEvent))
 
 	return processedMetrics
 }
@@ -52,6 +54,34 @@ func (p *HttpStartStopProcessor) ProcessHttpStartStopStatusCodeCount(event *even
 	}
 
 	metric := metrics.NewCounterMetric(stat, incrementValue)
+
+	return metric
+}
+
+func (p *HttpStartStopProcessor) ProcessHttpStartStopHttpErrorCount(event *events.HttpStartStop) *metrics.CounterMetric {
+	var incrementValue int64
+
+	statPrefix := "http.errors."
+	hostname := strings.Replace(strings.Split(event.GetUri(), "/")[0], ".", "_", -1)
+	stat := statPrefix + hostname
+
+	if 299 < event.GetStatusCode() {
+		incrementValue = 1
+	} else {
+		incrementValue = 0
+	}
+
+	metric := metrics.NewCounterMetric(stat, incrementValue)
+
+	return metric
+}
+
+func (p *HttpStartStopProcessor) ProcessHttpStartStopHttpRequestCount(event *events.HttpStartStop) *metrics.CounterMetric {
+
+	statPrefix := "http.requests."
+	hostname := strings.Replace(strings.Split(event.GetUri(), "/")[0], ".", "_", -1)
+	stat := statPrefix + hostname
+	metric := metrics.NewCounterMetric(stat, 1)
 
 	return metric
 }
