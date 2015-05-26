@@ -17,7 +17,7 @@ import (
 
 const DopplerAddress = "wss://doppler.10.244.0.34.xip.io:443"
 const firehoseSubscriptionId = "firehose-a"
-const statsdAddress = "10.244.2.2:8125"
+const statsdAddress = "10.244.11.2:8125"
 const statsdPrefix = "mycf."
 
 var authToken = os.Getenv("CF_ACCESS_TOKEN")
