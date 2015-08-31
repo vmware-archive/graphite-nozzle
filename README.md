@@ -20,27 +20,14 @@ cd $GOPATH/src/github.com/cloudcredo
 git clone git@github.com:CloudCredo/graphite-nozzle.git
 cd graphite-nozzle
 godep restore
-```
-
-You may need to update the consts defined on lines [18-21](https://github.com/CloudCredo/graphite-nozzle/blob/master/sample/main.go#L18-L21) so that they are configured for your environment. The current values work for a bosh-lite install of CF and Graphite using the 'standard' manifests. Once that's done, build the sample app:
-
-```
-go build -o bin/graphite-nozzle sample/main.go
-```
-
-Before running the app you'll need to export an environment variabled named `CF_ACCESS_TOKEN`. This should contain an oauth token from the user who can access the Firehose (replace 'admin admin' below with the username and password of your admin user):
-
-```
-cf auth admin admin && export CF_ACCESS_TOKEN="$(cf oauth-token | tail -n 1)"
+godep go build
 ```
 
 Finally, run the app:
 
 ```
-bin/graphite-nozzle
+bin/graphite-nozzle --help
 ```
-
-10 seconds later you should be able to see the metrics appearing in your Graphite web UI.
 
 ## Metrics Overview
 
