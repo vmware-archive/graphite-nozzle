@@ -11,7 +11,7 @@ your manifest
 properties:
   uaa:
     clients:
-      datadog-firehose-nozzle:
+      graphite-nozzle:
         access-token-validity: 1209600
         authorized-grant-types: authorization_code,client_credentials,refresh_token
         override: true
