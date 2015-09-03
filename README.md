@@ -4,13 +4,26 @@ This library consumes events off the Cloud Foundry Firehose, processes them, and
 
 ## Getting Started
 
-An example app is included under the sample directory. To run the app you'll need:
+* A user who has access to the Cloud Foundry Firehose configured in
+your manifest
 
-* A user who has access to the Cloud Foundry Firehose (see [here](http://cloudcredo.com/cloud-foundry-firehose-and-friends/) for a tutorial on how to create one).
+```
+properties:
+  uaa:
+    clients:
+      datadog-firehose-nozzle:
+        access-token-validity: 1209600
+        authorized-grant-types: authorization_code,client_credentials,refresh_token
+        override: true
+        secret: <password>
+        scope: openid,oauth.approvals,doppler.firehose
+        authorities: oauth.login,doppler.firehose
+
+```
+
 * A Graphite and StatsD server (see [here](https://github.com/CloudCredo/graphite-statsd-boshrelease) for a Graphite/StatsD BOSH release).
 * Golang installed and configured (see [here](https://golang.org/doc/install) for a tutorial on how to do this).
 * godep (see [here](https://github.com/tools/godep) for installation instructions).
-* The cf cli > 6.7.0 (optional, but useful for retrieving an oauth token that's required by the sample app. It can be downloaded [here](https://github.com/cloudfoundry/cli/releases)).
 
 Once you've met all the prerequisites, you'll need to download the library and install the dependencies:
 
@@ -26,7 +39,7 @@ godep go build
 Finally, run the app:
 
 ```
-bin/graphite-nozzle --help
+./graphite-nozzle --help
 ```
 
 ## Metrics Overview
