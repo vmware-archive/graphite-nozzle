@@ -1,10 +1,19 @@
 {
 	"ImportPath": "github.com/cloudcredo/graphite-nozzle",
-	"GoVersion": "go1.3",
-	"Packages": [
-		"./..."
-	],
+	"GoVersion": "go1.4.2",
 	"Deps": [
+		{
+			"ImportPath": "github.com/alecthomas/template",
+			"Rev": "b867cc6ab45cece8143cfcc6fc9c77cf3f2c23c0"
+		},
+		{
+			"ImportPath": "github.com/alecthomas/units",
+			"Rev": "6b4e7dc5e3143b85ea77909c72caf89416fc2915"
+		},
+		{
+			"ImportPath": "github.com/cloudfoundry-incubator/uaago",
+			"Rev": "1627a524bb8637bae9bbb61c42593db3e436d08f"
+		},
 		{
 			"ImportPath": "github.com/cloudfoundry/noaa",
 			"Rev": "7ec5b0dce4f86d1d79e3d68df670760bffd7c7c5"
@@ -18,18 +27,13 @@
 			"Rev": "9007e29a7c93fc3dcebbdbf742ce0efaf19e6510"
 		},
 		{
-			"ImportPath": "github.com/onsi/ginkgo",
-			"Comment": "v1.1.0-6-g527974d",
-			"Rev": "527974d5873391de9d8a25b761b5fc1382e9279e"
-		},
-		{
-			"ImportPath": "github.com/onsi/gomega",
-			"Comment": "v1.0",
-			"Rev": "a78ae492d53aad5a7a232d0d0462c14c400e3ee7"
-		},
-		{
 			"ImportPath": "github.com/quipo/statsd",
 			"Rev": "1090ab4693b587d42fbf75c2cc64a031a9f22a4b"
+		},
+		{
+			"ImportPath": "gopkg.in/alecthomas/kingpin.v2",
+			"Comment": "v2.0.8",
+			"Rev": "a7274600e78d26876a32d8b293cbb0cd324f61a2"
 		}
 	]
 }
