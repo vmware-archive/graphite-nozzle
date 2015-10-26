@@ -11,12 +11,12 @@ import (
 	"sync"
 	"time"
 
-	"github.com/gogo/protobuf/proto"
 	"github.com/cloudfoundry/loggregatorlib/loggertesthelper"
 	"github.com/cloudfoundry/loggregatorlib/server/handlers"
 	"github.com/cloudfoundry/noaa"
 	noaa_errors "github.com/cloudfoundry/noaa/errors"
 	"github.com/cloudfoundry/noaa/events"
+	"github.com/gogo/protobuf/proto"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -603,15 +603,20 @@ var _ = Describe("Noaa", func() {
 	})
 
 	Describe("Close", func() {
+		var incomingChan chan *events.Envelope
+		var streamErrorChan chan error
+
+		perform := func() {
+			streamErrorChan = make(chan error, 10)
+			connection = noaa.NewConsumer(trafficControllerUrl, nil, nil)
+			go func() {
+				streamErrorChan <- connection.StreamWithoutReconnect(appGuid, authToken, incomingChan)
+			}()
+		}
+
 		BeforeEach(func() {
-			fakeHandler = &FakeHandler{
-				InputChan: make(chan []byte, 10),
-				GenerateHandler: func(input chan []byte) http.Handler {
-					return handlers.NewWebsocketHandler(input, 100*time.Millisecond, loggertesthelper.Logger())
-				},
-			}
-			testServer = httptest.NewServer(fakeHandler)
-			trafficControllerUrl = "ws://" + testServer.Listener.Addr().String()
+			incomingChan = make(chan *events.Envelope)
+			startFakeTrafficController()
 		})
 
 		Context("when a connection is not open", func() {
@@ -625,22 +630,15 @@ var _ = Describe("Noaa", func() {
 
 		Context("when a connection is open", func() {
 			It("terminates the blocking function call", func(done Done) {
-				connection = noaa.NewConsumer(trafficControllerUrl, nil, nil)
-
-				incomingChan := make(chan *events.LogMessage)
-				errChan := make(chan error)
-				go func() {
-					errChan <- connection.TailingLogsWithoutReconnect("app-guid", "auth-token", incomingChan)
-				}()
-
+				perform()
 				fakeHandler.Close()
 
 				Eventually(fakeHandler.wasCalled).Should(BeTrue())
-
-				connection.Close()
+				connErr := connection.Close()
+				Expect(connErr.Error()).To(ContainSubstring("use of closed network connection"))
 
 				var err error
-				Eventually(errChan).Should(Receive(&err))
+				Eventually(streamErrorChan).Should(Receive(&err))
 				Expect(err.Error()).To(ContainSubstring("EOF"))
 
 				close(done)
@@ -1215,6 +1213,9 @@ func createContainerMetric(instanceIndex int32, timestamp int64) *events.Envelop
 	cm := &events.ContainerMetric{
 		ApplicationId: proto.String("appId"),
 		InstanceIndex: proto.Int32(instanceIndex),
+		CpuPercentage: proto.Float64(1),
+		MemoryBytes: proto.Uint64(2),
+		DiskBytes: proto.Uint64(3),
 	}
 
 	return &events.Envelope{
@@ -1274,7 +1275,7 @@ func createHeartbeat(sentCount, receivedCount, errorCount uint64, timestamp int6
 func marshalMessage(message *events.Envelope) []byte {
 	data, err := proto.Marshal(message)
 	if err != nil {
-		log.Println(err.Error())
+		println(err.Error())
 	}
 
 	return data
