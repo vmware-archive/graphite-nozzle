@@ -1,0 +1,7 @@
+#!/bin/bash
+
+export GOPATH=$GOPATH:$(pwd)
+cd src/github.com/cloudcredo/graphite-nozzle
+export GOPATH=$GOPATH:$(pwd)/Godeps/_workspace
+
+ginkgo -r -v

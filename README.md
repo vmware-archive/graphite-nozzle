@@ -86,3 +86,7 @@ go get github.com/onsi/gomega
 ```
 
 Then run `ginkgo -r` from root of this repository.
+
+## CI
+
+See the [CI README.md](ci/README.md)

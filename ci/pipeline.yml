@@ -1,0 +1,14 @@
+jobs:
+- name: unit
+  plan:
+  - get: graphite-nozzle-src
+    trigger: true
+  - task: unit
+    file: graphite-nozzle-src/ci/unit.yml
+
+resources:
+- name: graphite-nozzle-src
+  type: git
+  source:
+    uri: https://github.com/CloudCredo/graphite-nozzle.git
+    branch: ci-wip
