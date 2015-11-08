@@ -13,3 +13,12 @@ resources:
     uri: git@github.com:CloudCredo/graphite-nozzle.git
     branch: ci-wip
     private_key: {{github-private-key}}
+
+- name: version
+  type: semver
+  source:
+    driver: git
+    uri: git@github.com:CloudCredo/graphite-nozzle.git
+    branch: ci-wip
+    file: ci/version.txt
+    private_key: {{github-private-key}}
