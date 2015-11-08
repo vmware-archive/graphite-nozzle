@@ -1,2 +1,4 @@
 bin/*
+ci/secrets.yml
 graphite-nozzle
+.vagrant/*
