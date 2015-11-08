@@ -7,4 +7,4 @@ cd src/github.com/cloudcredo/graphite-nozzle
 export GOPATH=$GOPATH:$(pwd)/Godeps/_workspace
 
 go build -o graphite-nozzle main.go
-tar -zxvf "graphite-nozzle-$VERSION.tar.gz" ./graphite-nozzle
+tar -cvzf "graphite-nozzle-$VERSION.tar.gz" ./graphite-nozzle
