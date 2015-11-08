@@ -6,6 +6,18 @@ jobs:
   - task: unit
     file: graphite-nozzle-src/ci/unit.yml
 
+- name: build-rc
+  serial_groups: [version]
+  plan:
+  - aggregate:
+    - get: graphite-nozzle-src
+      passed: [unit]
+      trigger: true
+    - get: version
+      params: {pre: rc}
+  - task: build
+    file: graphite-nozzle-src/ci/build.yml
+
 resources:
 - name: graphite-nozzle-src
   type: git

@@ -1,0 +1,11 @@
+---
+platform: linux
+image: docker:///teddyking/go-ginkgo
+
+inputs:
+  - name: graphite-nozzle-src
+    path: src/github.com/cloudcredo/graphite-nozzle
+  - name: version
+
+run:
+  path: src/github.com/cloudcredo/graphite-nozzle/ci/scripts/build
