@@ -10,5 +10,6 @@ resources:
 - name: graphite-nozzle-src
   type: git
   source:
-    uri: https://github.com/CloudCredo/graphite-nozzle.git
+    uri: git@github.com:CloudCredo/graphite-nozzle.git
     branch: ci-wip
+    private_key: {{github-private-key}}
