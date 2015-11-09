@@ -32,5 +32,5 @@ resources:
     driver: git
     uri: git@github.com:CloudCredo/graphite-nozzle.git
     branch: ci-wip
-    file: ci/version.txt
+    file: graphite-nozzle/ci/version.txt
     private_key: {{github-private-key}}
