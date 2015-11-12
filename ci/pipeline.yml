@@ -17,6 +17,12 @@ jobs:
       params: {pre: rc}
   - task: build
     file: graphite-nozzle-src/ci/build.yml
+  - put: graphite-nozzle-rc
+    params:
+      from: build/src/github.com/cloudcredo/graphite-nozzle/graphite-nozzle-.*.tar.gz
+  - put: version
+    params: {pre: rc}
+
 
 resources:
 - name: graphite-nozzle-src
@@ -25,6 +31,24 @@ resources:
     uri: git@github.com:CloudCredo/graphite-nozzle.git
     branch: ci-wip
     private_key: {{github-private-key}}
+
+- name: graphite-nozzle-rc
+  type: s3
+  source:
+    bucket: graphite-nozzle-pipeline-artefacts
+    region_name: eu-west-1
+    regexp: graphite-nozzle-(.*).tgz
+    access_key_id: {{s3-access-key-id}}
+    secret_access_key: {{s3-secret-access-key}}
+
+- name: graphite-nozzle-final
+  type: s3
+  source:
+    bucket: graphite-nozzle
+    region_name: eu-west-1
+    regexp: graphite-nozzle-(.*).tgz
+    access_key_id: {{s3-access-key-id}}
+    secret_access_key: {{s3-secret-access-key}}
 
 - name: version
   type: semver
