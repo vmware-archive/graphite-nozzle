@@ -29,8 +29,9 @@ resources:
 - name: version
   type: semver
   source:
-    driver: git
-    uri: git@github.com:CloudCredo/graphite-nozzle.git
-    branch: ci-wip
-    file: graphite-nozzle/ci/version.txt
-    private_key: {{github-private-key}}
+    driver: s3
+    bucket: graphite-nozzle-pipeline-artefacts
+    region_name: eu-west-1
+    key: version.txt
+    access_key_id: {{s3-access-key-id}}
+    secret_access_key: {{s3-secret-access-key}}
