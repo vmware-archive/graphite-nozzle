@@ -3,5 +3,5 @@
 VERSION="$(cat version/number)"
 
 cd graphite-nozzle-rc
-mv graphite-nozzle-* "../graphite-nozzle-$VERSION.tar.gz"
+mv graphite-nozzle-* "graphite-nozzle-$VERSION.tar.gz"
 
