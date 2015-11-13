@@ -23,6 +23,23 @@ jobs:
   - put: version
     params: {pre: rc}
 
+- name: shipit
+  serial_groups: [version]
+  plan:
+    - aggregate:
+      - get: graphite-nozzle-src
+        passed: [build-rc]
+        trigger: false
+      - get: graphite-nozzle-rc
+        passed: [build-rc]
+      - get: version
+        params: {bump: final}
+    - task: promote-to-final
+      file: graphite-nozzle-src/ci/promote-to-final.yml
+    - put: graphite-nozzle-final
+      params: {from: promote-to-final/graphite-nozzle-*.tar.gz}
+    - put: version
+      params: {from: version/number}
 
 resources:
 - name: graphite-nozzle-src
