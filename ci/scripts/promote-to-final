@@ -2,6 +2,11 @@
 
 VERSION="$(cat version/number)"
 
+echo $VERSION
+echo $(pwd)
+
+ls -lah
+
 cd graphite-nozzle-rc
 mv graphite-nozzle-* "graphite-nozzle-$VERSION.tar.gz"
 
