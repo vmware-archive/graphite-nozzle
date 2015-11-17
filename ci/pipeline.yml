@@ -37,9 +37,9 @@ jobs:
     - task: promote-to-final
       file: graphite-nozzle-src/ci/promote-to-final.yml
     - put: graphite-nozzle-final
-      params: {from: promote-to-final/graphite-nozzle-*.tar.gz}
+      params: {from: promote-to-final/graphite-nozzle-rc/graphite-nozzle-.*.tar.gz} 
     - put: version
-      params: {from: version/number}
+      params: {bump: minor, pre: rc}
 
 resources:
 - name: graphite-nozzle-src

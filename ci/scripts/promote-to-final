@@ -2,10 +2,7 @@
 
 VERSION="$(cat version/number)"
 
-echo $VERSION
-echo $(pwd)
-
-ls -lah
+echo "Promoting to final version: $VERSION"
 
 cd graphite-nozzle-rc
 mv graphite-nozzle-* "graphite-nozzle-$VERSION.tar.gz"
