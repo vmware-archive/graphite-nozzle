@@ -16,11 +16,12 @@
 		},
 		{
 			"ImportPath": "github.com/cloudfoundry/noaa",
-			"Rev": "7ec5b0dce4f86d1d79e3d68df670760bffd7c7c5"
+			"Rev": "4f20c9fdf29bf4790685685c2701d6b00f30b99c"
 		},
 		{
 			"ImportPath": "github.com/gogo/protobuf/proto",
-			"Rev": "bc946d07d1016848dfd2507f90f0859c9471681e"
+			"Comment": "v0.1-59-g0414533",
+			"Rev": "04145330265d088c218da8916c50eab3814c76a0"
 		},
 		{
 			"ImportPath": "github.com/gorilla/websocket",
