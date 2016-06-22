@@ -1,9 +1,17 @@
 {
 	"ImportPath": "github.com/cloudcredo/graphite-nozzle",
-	"GoVersion": "go1.4.2",
+	"GoVersion": "go1.6",
+	"GodepVersion": "v74",
+	"Packages": [
+		"."
+	],
 	"Deps": [
 		{
 			"ImportPath": "github.com/alecthomas/template",
+			"Rev": "b867cc6ab45cece8143cfcc6fc9c77cf3f2c23c0"
+		},
+		{
+			"ImportPath": "github.com/alecthomas/template/parse",
 			"Rev": "b867cc6ab45cece8143cfcc6fc9c77cf3f2c23c0"
 		},
 		{
@@ -19,6 +27,14 @@
 			"Rev": "4f20c9fdf29bf4790685685c2701d6b00f30b99c"
 		},
 		{
+			"ImportPath": "github.com/cloudfoundry/noaa/errors",
+			"Rev": "4f20c9fdf29bf4790685685c2701d6b00f30b99c"
+		},
+		{
+			"ImportPath": "github.com/cloudfoundry/noaa/events",
+			"Rev": "4f20c9fdf29bf4790685685c2701d6b00f30b99c"
+		},
+		{
 			"ImportPath": "github.com/gogo/protobuf/proto",
 			"Comment": "v0.1-59-g0414533",
 			"Rev": "04145330265d088c218da8916c50eab3814c76a0"
@@ -29,6 +45,10 @@
 		},
 		{
 			"ImportPath": "github.com/quipo/statsd",
+			"Rev": "1090ab4693b587d42fbf75c2cc64a031a9f22a4b"
+		},
+		{
+			"ImportPath": "github.com/quipo/statsd/event",
 			"Rev": "1090ab4693b587d42fbf75c2cc64a031a9f22a4b"
 		},
 		{
