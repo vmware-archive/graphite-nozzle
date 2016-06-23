@@ -28,9 +28,9 @@ properties:
 Once you've met all the prerequisites, you'll need to download the library and install the dependencies:
 
 ```
-mkdir -p $GOPATH/src/github.com/cloudcredo
-cd $GOPATH/src/github.com/cloudcredo
-git clone git@github.com:CloudCredo/graphite-nozzle.git
+mkdir -p $GOPATH/src/github.com/pivotal-cf
+cd $GOPATH/src/github.com/pivotal-cf
+git clone git@github.com:pivotal-cf/graphite-nozzle.git
 cd graphite-nozzle
 godep restore
 godep go build

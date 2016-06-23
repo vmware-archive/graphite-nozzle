@@ -1,7 +1,7 @@
 package processors_test
 
 import (
-	. "github.com/cloudcredo/graphite-nozzle/processors"
+	. "github.com/pivotal-cf/graphite-nozzle/processors"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"

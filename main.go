@@ -8,11 +8,11 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/cloudcredo/graphite-nozzle/metrics"
-	"github.com/cloudcredo/graphite-nozzle/processors"
-	"github.com/cloudcredo/graphite-nozzle/token"
 	"github.com/cloudfoundry/noaa"
 	"github.com/cloudfoundry/noaa/events"
+	"github.com/pivotal-cf/graphite-nozzle/metrics"
+	"github.com/pivotal-cf/graphite-nozzle/processors"
+	"github.com/pivotal-cf/graphite-nozzle/token"
 	"github.com/quipo/statsd"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
