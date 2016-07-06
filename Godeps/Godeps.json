@@ -1,5 +1,5 @@
 {
-	"ImportPath": "github.com/cloudcredo/graphite-nozzle",
+	"ImportPath": "github.com/pivotal-cf/graphite-nozzle",
 	"GoVersion": "go1.6",
 	"GodepVersion": "v74",
 	"Packages": [

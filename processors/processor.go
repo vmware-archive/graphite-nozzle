@@ -1,8 +1,8 @@
 package processors
 
 import (
-	"github.com/cloudcredo/graphite-nozzle/metrics"
 	"github.com/cloudfoundry/noaa/events"
+	"github.com/pivotal-cf/graphite-nozzle/metrics"
 )
 
 type Processor interface {
