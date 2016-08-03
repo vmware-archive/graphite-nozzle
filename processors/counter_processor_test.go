@@ -34,8 +34,9 @@ var _ = Describe("CounterEventProcessor", func() {
 
 	Describe("#Process", func() {
 		It("returns a Metric for each of the ProcessCounter* methods", func() {
-			processedMetrics := processor.Process(event)
+			processedMetrics, err := processor.Process(event)
 
+			Expect(err).To(BeNil())
 			Expect(processedMetrics).To(HaveLen(1))
 		})
 	})

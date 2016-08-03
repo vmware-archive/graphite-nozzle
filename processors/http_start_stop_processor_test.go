@@ -14,17 +14,26 @@ var _ = Describe("HttpStartStopProcessor", func() {
 		processor          *HttpStartStopProcessor
 		event              *events.Envelope
 		httpStartStopEvent *events.HttpStartStop
+		startTimestamp     int64
+		stopTimestamp      int64
+		method             events.Method
+		uri                string
+		statusCode         int32
+		peerType           events.PeerType
 	)
 
 	BeforeEach(func() {
-		processor = NewHttpStartStopProcessor()
 
-		startTimestamp := int64(1425881484152112140)
-		stopTimestamp := int64(1425881484161498528)
-		method := events.Method_GET
-		uri := "api.10.244.0.34.xip.io/v2/info"
-		statusCode := int32(200)
-		peerType := events.PeerType_Client
+		startTimestamp = int64(1425881484152112140)
+		stopTimestamp = int64(1425881484161498528)
+		method = events.Method_GET
+		uri = "http://api.10.244.0.34.xip.io/v2/info"
+		statusCode = int32(200)
+		peerType = events.PeerType_Client
+	})
+
+	JustBeforeEach(func() {
+		processor = NewHttpStartStopProcessor()
 
 		httpStartStopEvent = &events.HttpStartStop{
 			StartTimestamp: &startTimestamp,
@@ -41,10 +50,32 @@ var _ = Describe("HttpStartStopProcessor", func() {
 	})
 
 	Describe("#Process", func() {
-		It("returns a Metric for each of the ProcessHttpStartStop* methods", func() {
-			processedMetrics := processor.Process(event)
+		Context("The Event is properly formatted", func() {
+			It("returns a Metric for each of the ProcessHttpStartStop* methods", func() {
+				processedMetrics, err := processor.Process(event)
 
-			Expect(processedMetrics).To(HaveLen(4))
+				Expect(err).To(BeNil())
+				Expect(processedMetrics).To(HaveLen(4))
+			})
+		})
+
+		Context("the Event uri field is empty", func() {
+
+			BeforeEach(func() {
+				startTimestamp = int64(1425881484152112140)
+				stopTimestamp = int64(1425881484161498528)
+				method = events.Method_GET
+				uri = ""
+				statusCode = int32(200)
+				peerType = events.PeerType_Client
+			})
+
+			It("returns an error", func() {
+				processedMetrics, err := processor.Process(event)
+
+				Expect(processedMetrics).To(BeNil())
+				Expect(err).Should(HaveOccurred())
+			})
 		})
 	})
 

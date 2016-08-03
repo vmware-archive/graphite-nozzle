@@ -39,8 +39,9 @@ var _ = Describe("ContainerMetricProcessor", func() {
 
 	Describe("#Process", func() {
 		It("returns a Metric for each of the ProcessContainerMetric* methods", func() {
-			processedMetrics := processor.Process(event)
+			processedMetrics, err := processor.Process(event)
 
+			Expect(err).To(BeNil())
 			Expect(processedMetrics).To(HaveLen(3))
 		})
 	})

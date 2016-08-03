@@ -11,13 +11,13 @@ func NewValueMetricProcessor() *ValueMetricProcessor {
 	return &ValueMetricProcessor{}
 }
 
-func (p *ValueMetricProcessor) Process(e *events.Envelope) []metrics.Metric {
+func (p *ValueMetricProcessor) Process(e *events.Envelope) ([]metrics.Metric, error) {
 	processedMetrics := make([]metrics.Metric, 1)
 	valueMetricEvent := e.GetValueMetric()
 
 	processedMetrics[0] = p.ProcessValueMetric(valueMetricEvent, e.GetOrigin())
 
-	return processedMetrics
+	return processedMetrics, nil
 }
 
 func (p *ValueMetricProcessor) ProcessValueMetric(event *events.ValueMetric, origin string) *metrics.FGaugeMetric {

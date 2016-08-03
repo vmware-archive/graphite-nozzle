@@ -11,13 +11,13 @@ func NewCounterProcessor() *CounterProcessor {
 	return &CounterProcessor{}
 }
 
-func (p *CounterProcessor) Process(e *events.Envelope) []metrics.Metric {
+func (p *CounterProcessor) Process(e *events.Envelope) ([]metrics.Metric, error) {
 	processedMetrics := make([]metrics.Metric, 1)
 	counterEvent := e.GetCounterEvent()
 
 	processedMetrics[0] = metrics.Metric(p.ProcessCounter(counterEvent))
 
-	return processedMetrics
+	return processedMetrics, nil
 }
 
 func (p *CounterProcessor) ProcessCounter(event *events.CounterEvent) *metrics.CounterMetric {
