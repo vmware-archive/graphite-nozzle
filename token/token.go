@@ -26,3 +26,7 @@ func (uaa *UAATokenFetcher) FetchAuthToken() (string, error) {
 	}
 	return authToken, nil
 }
+
+func (uaa *UAATokenFetcher) RefreshAuthToken() (string, error) {
+	return uaa.FetchAuthToken()
+}

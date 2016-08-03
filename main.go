@@ -50,6 +50,7 @@ func main() {
 	}
 
 	consumer := consumer.New(*dopplerEndpoint, &tls.Config{InsecureSkipVerify: *skipSSLValidation}, nil)
+	consumer.RefreshTokenFrom(tokenFetcher)
 
 	httpStartStopProcessor := processors.NewHttpStartStopProcessor()
 	valueMetricProcessor := processors.NewValueMetricProcessor()
