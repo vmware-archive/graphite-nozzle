@@ -15,8 +15,23 @@ func NewHttpStartStopProcessor() *HttpStartStopProcessor {
 	return &HttpStartStopProcessor{}
 }
 
-func (p *HttpStartStopProcessor) Process(e *events.Envelope) []metrics.Metric {
-	processedMetrics := make([]metrics.Metric, 4)
+func (p *HttpStartStopProcessor) Process(e *events.Envelope) (processedMetrics []metrics.Metric, err error) {
+
+	defer func() {
+		if r := recover(); r != nil {
+			switch x := r.(type) {
+			case string:
+				err = errors.New(x)
+			case error:
+				err = x
+			default:
+				err = errors.New("Unknown error")
+			}
+			processedMetrics = nil
+		}
+	}()
+
+	processedMetrics = make([]metrics.Metric, 4)
 	httpStartStopEvent := e.GetHttpStartStop()
 
 	processedMetrics[0] = metrics.Metric(p.ProcessHttpStartStopResponseTime(httpStartStopEvent))

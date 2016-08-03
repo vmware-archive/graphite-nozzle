@@ -11,7 +11,7 @@ func NewHeartbeatProcessor() *HeartbeatProcessor {
 	return &HeartbeatProcessor{}
 }
 
-func (p *HeartbeatProcessor) Process(e *events.Envelope) []metrics.Metric {
+func (p *HeartbeatProcessor) Process(e *events.Envelope) ([]metrics.Metric, error) {
 	processedMetrics := make([]metrics.Metric, 4)
 	heartbeat := e.GetHeartbeat()
 	origin := e.GetOrigin()
@@ -21,7 +21,7 @@ func (p *HeartbeatProcessor) Process(e *events.Envelope) []metrics.Metric {
 	processedMetrics[2] = metrics.Metric(p.ProcessHeartbeatEventsReceivedCount(heartbeat, origin))
 	processedMetrics[3] = metrics.Metric(p.ProcessHeartbeatEventsErrorCount(heartbeat, origin))
 
-	return processedMetrics
+	return processedMetrics, nil
 }
 
 func (p *HeartbeatProcessor) ProcessHeartbeatCount(e *events.Heartbeat, origin string) *metrics.CounterMetric {

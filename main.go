@@ -61,6 +61,7 @@ func main() {
 	sender.CreateSocket()
 
 	var processedMetrics []metrics.Metric
+	var proc_err error
 
 	msgChan := make(chan *events.Envelope)
 	go func() {
@@ -80,32 +81,36 @@ func main() {
 		// HttpStartStop and ValueMetric events
 		switch eventType {
 		case events.Envelope_ContainerMetric:
-			processedMetrics = containerMetricProcessor.Process(msg)
+			processedMetrics, proc_err = containerMetricProcessor.Process(msg)
 		case events.Envelope_CounterEvent:
-			processedMetrics = counterProcessor.Process(msg)
+			processedMetrics, proc_err = counterProcessor.Process(msg)
 		case events.Envelope_Heartbeat:
-			processedMetrics = heartbeatProcessor.Process(msg)
+			processedMetrics, proc_err = heartbeatProcessor.Process(msg)
 		case events.Envelope_HttpStartStop:
-			processedMetrics = httpStartStopProcessor.Process(msg)
+			processedMetrics, proc_err = httpStartStopProcessor.Process(msg)
 		case events.Envelope_ValueMetric:
-			processedMetrics = valueMetricProcessor.Process(msg)
+			processedMetrics, proc_err = valueMetricProcessor.Process(msg)
 		default:
 			// do nothing
 		}
 
-		if !*debug {
-			if len(processedMetrics) > 0 {
-				for _, metric := range processedMetrics {
-					var prefix string
-					if *prefixJob {
-						prefix = msg.GetJob() + "." + msg.GetIndex()
-					}
-					metric.Send(sender, prefix)
-				}
-			}
+		if proc_err != nil {
+			fmt.Fprintf(os.Stderr, "%v\n", proc_err.Error())
 		} else {
-			for _, msg := range processedMetrics {
-				fmt.Println(msg)
+			if !*debug {
+				if len(processedMetrics) > 0 {
+					for _, metric := range processedMetrics {
+						var prefix string
+						if *prefixJob {
+							prefix = msg.GetJob() + "." + msg.GetIndex()
+						}
+						metric.Send(sender, prefix)
+					}
+				}
+			} else {
+				for _, msg := range processedMetrics {
+					fmt.Println(msg)
+				}
 			}
 		}
 		processedMetrics = nil
