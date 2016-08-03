@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/cloudfoundry/noaa"
-	"github.com/cloudfoundry/noaa/events"
+	"github.com/cloudfoundry/noaa/consumer"
+	"github.com/cloudfoundry/sonde-go/events"
 	"github.com/pivotal-cf/graphite-nozzle/metrics"
 	"github.com/pivotal-cf/graphite-nozzle/processors"
 	"github.com/pivotal-cf/graphite-nozzle/token"
@@ -49,25 +49,21 @@ func main() {
 		os.Exit(-1)
 	}
 
-	consumer := noaa.NewConsumer(*dopplerEndpoint, &tls.Config{InsecureSkipVerify: *skipSSLValidation}, nil)
+	consumer := consumer.New(*dopplerEndpoint, &tls.Config{InsecureSkipVerify: *skipSSLValidation}, nil)
 
 	httpStartStopProcessor := processors.NewHttpStartStopProcessor()
 	valueMetricProcessor := processors.NewValueMetricProcessor()
 	containerMetricProcessor := processors.NewContainerMetricProcessor()
-	heartbeatProcessor := processors.NewHeartbeatProcessor()
 	counterProcessor := processors.NewCounterProcessor()
 
 	sender := statsd.NewStatsdClient(*statsdEndpoint, *statsdPrefix)
 	sender.CreateSocket()
 
 	var processedMetrics []metrics.Metric
+  
+  msgChan, errorChan := consumer.Firehose(*subscriptionId, authToken)
 
-	msgChan := make(chan *events.Envelope)
-	go func() {
-		defer close(msgChan)
-		errorChan := make(chan error)
-		go consumer.Firehose(*subscriptionId, authToken, msgChan, errorChan, nil)
-
+	go func() () {
 		for err := range errorChan {
 			fmt.Fprintf(os.Stderr, "%v\n", err.Error())
 		}
@@ -83,8 +79,6 @@ func main() {
 			processedMetrics = containerMetricProcessor.Process(msg)
 		case events.Envelope_CounterEvent:
 			processedMetrics = counterProcessor.Process(msg)
-		case events.Envelope_Heartbeat:
-			processedMetrics = heartbeatProcessor.Process(msg)
 		case events.Envelope_HttpStartStop:
 			processedMetrics = httpStartStopProcessor.Process(msg)
 		case events.Envelope_ValueMetric:

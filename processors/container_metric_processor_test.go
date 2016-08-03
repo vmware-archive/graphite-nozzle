@@ -1,7 +1,7 @@
 package processors_test
 
 import (
-	"github.com/cloudfoundry/noaa/events"
+	"github.com/cloudfoundry/sonde-go/events"
 	. "github.com/pivotal-cf/graphite-nozzle/processors"
 
 	. "github.com/onsi/ginkgo"

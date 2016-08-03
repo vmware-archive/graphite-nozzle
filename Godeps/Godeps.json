@@ -1,0 +1,76 @@
+{
+	"ImportPath": "github.com/pivotal-cf/graphite-nozzle",
+	"GoVersion": "go1.6",
+	"GodepVersion": "v74",
+	"Deps": [
+		{
+			"ImportPath": "github.com/alecthomas/template",
+			"Rev": "b867cc6ab45cece8143cfcc6fc9c77cf3f2c23c0"
+		},
+		{
+			"ImportPath": "github.com/alecthomas/template/parse",
+			"Rev": "b867cc6ab45cece8143cfcc6fc9c77cf3f2c23c0"
+		},
+		{
+			"ImportPath": "github.com/alecthomas/units",
+			"Rev": "6b4e7dc5e3143b85ea77909c72caf89416fc2915"
+		},
+		{
+			"ImportPath": "github.com/cloudfoundry-incubator/uaago",
+			"Rev": "5253fdf54e4a464366e5ffa8e5f456f5f1e50a2f"
+		},
+		{
+			"ImportPath": "github.com/cloudfoundry/noaa",
+			"Rev": "0ca0d30d65c7422750132450593d402428dd2273"
+		},
+		{
+			"ImportPath": "github.com/cloudfoundry/noaa/consumer",
+			"Rev": "0ca0d30d65c7422750132450593d402428dd2273"
+		},
+		{
+			"ImportPath": "github.com/cloudfoundry/noaa/consumer/internal",
+			"Rev": "0ca0d30d65c7422750132450593d402428dd2273"
+		},
+		{
+			"ImportPath": "github.com/cloudfoundry/noaa/errors",
+			"Rev": "0ca0d30d65c7422750132450593d402428dd2273"
+		},
+		{
+			"ImportPath": "github.com/cloudfoundry/sonde-go/events",
+			"Rev": "27b0c7026ccc2de35ac218b1d15434b254ca57e9"
+		},
+		{
+			"ImportPath": "github.com/gogo/protobuf/gogoproto",
+			"Comment": "v0.2-55-ge33835a",
+			"Rev": "e33835a643a970c11ac74f6333f5f6866387a101"
+		},
+		{
+			"ImportPath": "github.com/gogo/protobuf/proto",
+			"Comment": "v0.2-55-ge33835a",
+			"Rev": "e33835a643a970c11ac74f6333f5f6866387a101"
+		},
+		{
+			"ImportPath": "github.com/gogo/protobuf/protoc-gen-gogo/descriptor",
+			"Comment": "v0.2-55-ge33835a",
+			"Rev": "e33835a643a970c11ac74f6333f5f6866387a101"
+		},
+		{
+			"ImportPath": "github.com/gorilla/websocket",
+			"Comment": "v1.0.0-20-ga69d25b",
+			"Rev": "a69d25be2fe2923a97c2af6849b2f52426f68fc0"
+		},
+		{
+			"ImportPath": "github.com/quipo/statsd",
+			"Rev": "1090ab4693b587d42fbf75c2cc64a031a9f22a4b"
+		},
+		{
+			"ImportPath": "github.com/quipo/statsd/event",
+			"Rev": "1090ab4693b587d42fbf75c2cc64a031a9f22a4b"
+		},
+		{
+			"ImportPath": "gopkg.in/alecthomas/kingpin.v2",
+			"Comment": "v2.0.8",
+			"Rev": "a7274600e78d26876a32d8b293cbb0cd324f61a2"
+		}
+	]
+}
