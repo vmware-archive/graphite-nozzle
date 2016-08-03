@@ -1,11 +1,12 @@
 package processors
 
 import (
-	"strconv"
-	"strings"
-
+	"errors"
 	"github.com/cloudfoundry/noaa/events"
 	"github.com/pivotal-cf/graphite-nozzle/metrics"
+	"net/url"
+	"strconv"
+	"strings"
 )
 
 type HttpStartStopProcessor struct{}
@@ -23,12 +24,26 @@ func (p *HttpStartStopProcessor) Process(e *events.Envelope) []metrics.Metric {
 	processedMetrics[2] = metrics.Metric(p.ProcessHttpStartStopHttpErrorCount(httpStartStopEvent))
 	processedMetrics[3] = metrics.Metric(p.ProcessHttpStartStopHttpRequestCount(httpStartStopEvent))
 
-	return processedMetrics
+	return
+}
+
+func (p *HttpStartStopProcessor) parseEventUri(uri string) string {
+	parsed_uri, err := url.Parse(uri)
+	if err != nil {
+		panic(err)
+	}
+
+	hostname := strings.Replace(parsed_uri.Host, ".", "_", -1)
+	if !(len(hostname) > 0) {
+		panic(errors.New("Hostname cannot be extracted from Event"))
+	}
+
+	return hostname
 }
 
 func (p *HttpStartStopProcessor) ProcessHttpStartStopResponseTime(event *events.HttpStartStop) *metrics.TimingMetric {
 	statPrefix := "http.responsetimes."
-	hostname := strings.Replace(strings.Split(event.GetUri(), "/")[0], ".", "_", -1)
+	hostname := p.parseEventUri(event.GetUri())
 	stat := statPrefix + hostname
 
 	startTimestamp := event.GetStartTimestamp()
@@ -42,7 +57,7 @@ func (p *HttpStartStopProcessor) ProcessHttpStartStopResponseTime(event *events.
 
 func (p *HttpStartStopProcessor) ProcessHttpStartStopStatusCodeCount(event *events.HttpStartStop) *metrics.CounterMetric {
 	statPrefix := "http.statuscodes."
-	hostname := strings.Replace(strings.Split(event.GetUri(), "/")[0], ".", "_", -1)
+	hostname := p.parseEventUri(event.GetUri())
 	stat := statPrefix + hostname + "." + strconv.Itoa(int(event.GetStatusCode()))
 
 	metric := metrics.NewCounterMetric(stat, isPeer(event))
@@ -54,7 +69,7 @@ func (p *HttpStartStopProcessor) ProcessHttpStartStopHttpErrorCount(event *event
 	var incrementValue int64
 
 	statPrefix := "http.errors."
-	hostname := strings.Replace(strings.Split(event.GetUri(), "/")[0], ".", "_", -1)
+	hostname := p.parseEventUri(event.GetUri())
 	stat := statPrefix + hostname
 
 	if 299 < event.GetStatusCode() && 1 == isPeer(event) {
@@ -70,7 +85,7 @@ func (p *HttpStartStopProcessor) ProcessHttpStartStopHttpErrorCount(event *event
 
 func (p *HttpStartStopProcessor) ProcessHttpStartStopHttpRequestCount(event *events.HttpStartStop) *metrics.CounterMetric {
 	statPrefix := "http.requests."
-	hostname := strings.Replace(strings.Split(event.GetUri(), "/")[0], ".", "_", -1)
+	hostname := p.parseEventUri(event.GetUri())
 	stat := statPrefix + hostname
 	metric := metrics.NewCounterMetric(stat, isPeer(event))
 
