@@ -61,7 +61,8 @@ func main() {
 	sender.CreateSocket()
 
 	var processedMetrics []metrics.Metric
-  	var proc_err error
+  var proc_err error
+  
   msgChan, errorChan := consumer.Firehose(*subscriptionId, authToken)
 
 	go func() () {
