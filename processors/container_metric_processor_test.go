@@ -1,7 +1,7 @@
 package processors_test
 
 import (
-	"github.com/cloudfoundry/noaa/events"
+	"github.com/cloudfoundry/sonde-go/events"
 	. "github.com/pivotal-cf/graphite-nozzle/processors"
 
 	. "github.com/onsi/ginkgo"
@@ -39,8 +39,9 @@ var _ = Describe("ContainerMetricProcessor", func() {
 
 	Describe("#Process", func() {
 		It("returns a Metric for each of the ProcessContainerMetric* methods", func() {
-			processedMetrics := processor.Process(event)
+			processedMetrics, err := processor.Process(event)
 
+			Expect(err).To(BeNil())
 			Expect(processedMetrics).To(HaveLen(3))
 		})
 	})

@@ -6,7 +6,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	"github.com/cloudfoundry/noaa/events"
+	"github.com/cloudfoundry/sonde-go/events"
 )
 
 var _ = Describe("CounterEventProcessor", func() {
@@ -34,8 +34,9 @@ var _ = Describe("CounterEventProcessor", func() {
 
 	Describe("#Process", func() {
 		It("returns a Metric for each of the ProcessCounter* methods", func() {
-			processedMetrics := processor.Process(event)
+			processedMetrics, err := processor.Process(event)
 
+			Expect(err).To(BeNil())
 			Expect(processedMetrics).To(HaveLen(1))
 		})
 	})

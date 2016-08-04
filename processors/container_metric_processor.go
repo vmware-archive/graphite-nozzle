@@ -2,8 +2,7 @@ package processors
 
 import (
 	"strconv"
-
-	"github.com/cloudfoundry/noaa/events"
+	"github.com/cloudfoundry/sonde-go/events"
 	"github.com/pivotal-cf/graphite-nozzle/metrics"
 )
 
@@ -13,7 +12,7 @@ func NewContainerMetricProcessor() *ContainerMetricProcessor {
 	return &ContainerMetricProcessor{}
 }
 
-func (p *ContainerMetricProcessor) Process(e *events.Envelope) []metrics.Metric {
+func (p *ContainerMetricProcessor) Process(e *events.Envelope) ([]metrics.Metric, error) {
 	processedMetrics := make([]metrics.Metric, 3)
 	containerMetricEvent := e.GetContainerMetric()
 
@@ -21,7 +20,7 @@ func (p *ContainerMetricProcessor) Process(e *events.Envelope) []metrics.Metric 
 	processedMetrics[1] = metrics.Metric(p.ProcessContainerMetricMemory(containerMetricEvent))
 	processedMetrics[2] = metrics.Metric(p.ProcessContainerMetricDisk(containerMetricEvent))
 
-	return processedMetrics
+	return processedMetrics, nil
 }
 
 func (p *ContainerMetricProcessor) ProcessContainerMetricCPU(e *events.ContainerMetric) metrics.GaugeMetric {
