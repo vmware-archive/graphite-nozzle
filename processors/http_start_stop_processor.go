@@ -4,7 +4,6 @@ import (
 	"errors"
 	"github.com/cloudfoundry/noaa/events"
 	"github.com/pivotal-cf/graphite-nozzle/metrics"
-	"net/url"
 	"strconv"
 	"strings"
 )
@@ -42,15 +41,23 @@ func (p *HttpStartStopProcessor) Process(e *events.Envelope) (processedMetrics [
 	return
 }
 
-func (p *HttpStartStopProcessor) parseEventUri(uri string) string {
-	parsed_uri, err := url.Parse(uri)
-	if err != nil {
-		panic(err)
-	}
 
-	hostname := strings.Replace(parsed_uri.Host, ".", "_", -1)
+//we want to be able to parse events whether they contain the scheme
+//element in their uri field or not
+func (p *HttpStartStopProcessor) parseEventUri(uri string) string {
+
+  hostname := ""
+
+  //we first remove the scheme
+  if strings.Contains(uri, "://") {
+  	uri = strings.Split(uri, "://")[1]
+  }
+
+  //and then proceed with extracting the hostname
+  hostname = strings.Replace(strings.Split(uri, "/")[0], ".", "_", -1)
+
 	if !(len(hostname) > 0) {
-		panic(errors.New("Hostname cannot be extracted from Event"))
+		panic(errors.New("Hostname cannot be extracted from Event uri: " + uri))
 	}
 
 	return hostname
