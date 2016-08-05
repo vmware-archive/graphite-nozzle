@@ -50,7 +50,19 @@ var _ = Describe("HttpStartStopProcessor", func() {
 	})
 
 	Describe("#Process", func() {
-		Context("The Event is properly formatted", func() {
+		Context("with a properly formatted event which contains the schema", func() {
+			It("returns a Metric for each of the ProcessHttpStartStop* methods", func() {
+				processedMetrics, err := processor.Process(event)
+
+				Expect(err).To(BeNil())
+				Expect(processedMetrics).To(HaveLen(4))
+			})
+		})
+
+		Context("with a properly formatted event which does not contain the schema", func() {
+			BeforeEach(func() {
+				uri = "api.10.244.0.34.xip.io/v2/info"
+			})
 			It("returns a Metric for each of the ProcessHttpStartStop* methods", func() {
 				processedMetrics, err := processor.Process(event)
 
@@ -60,14 +72,8 @@ var _ = Describe("HttpStartStopProcessor", func() {
 		})
 
 		Context("the Event uri field is empty", func() {
-
 			BeforeEach(func() {
-				startTimestamp = int64(1425881484152112140)
-				stopTimestamp = int64(1425881484161498528)
-				method = events.Method_GET
 				uri = ""
-				statusCode = int32(200)
-				peerType = events.PeerType_Client
 			})
 
 			It("returns an error", func() {
