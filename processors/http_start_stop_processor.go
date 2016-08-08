@@ -54,7 +54,9 @@ func (p *HttpStartStopProcessor) parseEventUri(uri string) string {
   }
 
   //and then proceed with extracting the hostname
-  hostname = strings.Replace(strings.Split(uri, "/")[0], ".", "_", -1)
+  hostname = strings.Split(uri, "/")[0]
+  hostname = strings.Replace(hostname, ".", "_", -1)
+  hostname = strings.Replace(hostname, ":", "_", -1)
 
 	if !(len(hostname) > 0) {
 		panic(errors.New("Hostname cannot be extracted from Event uri: " + uri))
