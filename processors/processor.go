@@ -6,5 +6,5 @@ import (
 )
 
 type Processor interface {
-	Process(e *events.Envelope) []metrics.Metric
+	Process(e *events.Envelope) ([]metrics.Metric, error)
 }
