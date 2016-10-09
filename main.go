@@ -33,9 +33,6 @@ var (
 func main() {
 	kingpin.Parse()
 
-	fmt.Println(*uaaEndpoint)
-	fmt.Println(*username)
-	fmt.Println(*password)
 	tokenFetcher := &token.UAATokenFetcher{
 		UaaUrl:                *uaaEndpoint,
 		Username:              *username,
