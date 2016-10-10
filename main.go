@@ -61,11 +61,11 @@ func main() {
 	sender.CreateSocket()
 
 	var processedMetrics []metrics.Metric
-  var proc_err error
-  
-  msgChan, errorChan := consumer.Firehose(*subscriptionId, authToken)
+	var proc_err error
 
-	go func() () {
+	msgChan, errorChan := consumer.Firehose(*subscriptionId, authToken)
+
+	go func() {
 		for err := range errorChan {
 			fmt.Fprintf(os.Stderr, "%v\n", err.Error())
 		}
