@@ -91,23 +91,25 @@ func main() {
 
 		if proc_err != nil {
 			fmt.Fprintf(os.Stderr, "%v\n", proc_err.Error())
-		} else {
-			if !*debug {
-				if len(processedMetrics) > 0 {
-					for _, metric := range processedMetrics {
-						var prefix string
-						if *prefixJob {
-							prefix = msg.GetJob() + "." + msg.GetIndex()
-						}
-						metric.Send(sender, prefix)
+			continue
+		}
+
+		if !*debug {
+			if len(processedMetrics) > 0 {
+				for _, metric := range processedMetrics {
+					var prefix string
+					if *prefixJob {
+						prefix = msg.GetJob() + "." + msg.GetIndex()
 					}
-				}
-			} else {
-				for _, msg := range processedMetrics {
-					fmt.Println(msg)
+					metric.Send(sender, prefix)
 				}
 			}
+		} else {
+			for _, msg := range processedMetrics {
+				fmt.Println(msg)
+			}
 		}
+
 		processedMetrics = nil
 	}
 }
