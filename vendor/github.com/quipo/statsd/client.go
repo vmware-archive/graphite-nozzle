@@ -16,8 +16,20 @@ type Logger interface {
 	Println(v ...interface{})
 }
 
-// note Hostname is exported so clients can set it to something different than the default
+// UDPPayloadSize is the number of bytes to send at one go through the udp socket.
+// SendEvents will try to pack as many events into one udp packet.
+// Change this value as per network capabilities
+// For example to change to 16KB
+//  import "github.com/quipo/statsd"
+//  func init() {
+//   statsd.UDPPayloadSize = 16 * 1024
+//  }
+var UDPPayloadSize int = 512
+
+// Hostname is exported so clients can set it to something different than the default
 var Hostname string
+
+var errNotConnected = fmt.Errorf("cannot send stats, not connected to StatsD server")
 
 func init() {
 	host, err := os.Hostname()
@@ -28,10 +40,11 @@ func init() {
 
 // StatsdClient is a client library to send events to StatsD
 type StatsdClient struct {
-	conn   net.Conn
-	addr   string
-	prefix string
-	Logger Logger
+	conn           net.Conn
+	addr           string
+	prefix         string
+	eventStringTpl string
+	Logger         Logger
 }
 
 // NewStatsdClient - Factory
@@ -39,9 +52,10 @@ func NewStatsdClient(addr string, prefix string) *StatsdClient {
 	// allow %HOST% in the prefix string
 	prefix = strings.Replace(prefix, "%HOST%", Hostname, 1)
 	return &StatsdClient{
-		addr:   addr,
-		prefix: prefix,
-		Logger: log.New(os.Stdout, "[StatsdClient] ", log.Ldate|log.Ltime),
+		addr:           addr,
+		prefix:         prefix,
+		Logger:         log.New(os.Stdout, "[StatsdClient] ", log.Ldate|log.Ltime),
+		eventStringTpl: "%s%s:%s",
 	}
 }
 
@@ -57,6 +71,17 @@ func (c *StatsdClient) CreateSocket() error {
 		return err
 	}
 	c.conn = conn
+	return nil
+}
+
+// CreateTCPSocket creates a TCP connection to a StatsD server
+func (c *StatsdClient) CreateTCPSocket() error {
+	conn, err := net.DialTimeout("tcp", c.addr, 5*time.Second)
+	if err != nil {
+		return err
+	}
+	c.conn = conn
+	c.eventStringTpl = "%s%s:%s\n"
 	return nil
 }
 
@@ -96,7 +121,7 @@ func (c *StatsdClient) Timing(stat string, delta int64) error {
 // PrecisionTiming - Track a duration event
 // the time delta has to be a duration
 func (c *StatsdClient) PrecisionTiming(stat string, delta time.Duration) error {
-	return c.send(stat, fmt.Sprintf("%.6f%s|ms", float64(delta)/float64(time.Millisecond), "%d"), 0)
+	return c.send(stat, "%.6f|ms", float64(delta)/float64(time.Millisecond))
 }
 
 // Gauge - Gauges are a constant data type. They are not subject to averaging,
@@ -157,10 +182,11 @@ func (c *StatsdClient) Total(stat string, value int64) error {
 // write a UDP packet with the statsd event
 func (c *StatsdClient) send(stat string, format string, value interface{}) error {
 	if c.conn == nil {
-		return fmt.Errorf("not connected")
+		return errNotConnected
 	}
 	stat = strings.Replace(stat, "%HOST%", Hostname, 1)
-	format = fmt.Sprintf("%s%s:%s", c.prefix, stat, format)
+	// if sending tcp append a newline
+	format = fmt.Sprintf(c.eventStringTpl, c.prefix, stat, format)
 	_, err := fmt.Fprintf(c.conn, format, value)
 	return err
 }
@@ -168,14 +194,56 @@ func (c *StatsdClient) send(stat string, format string, value interface{}) error
 // SendEvent - Sends stats from an event object
 func (c *StatsdClient) SendEvent(e event.Event) error {
 	if c.conn == nil {
-		return fmt.Errorf("cannot send stats, not connected to StatsD server")
+		return errNotConnected
 	}
 	for _, stat := range e.Stats() {
-		//fmt.Printf("SENDING EVENT %s%s\n", c.prefix, stat)
-		_, err := fmt.Fprintf(c.conn, "%s%s", c.prefix, stat)
+		//fmt.Printf("SENDING EVENT %s%s\n", c.prefix, strings.Replace(stat, "%HOST%", Hostname, 1))
+		_, err := fmt.Fprintf(c.conn, "%s%s", c.prefix, strings.Replace(stat, "%HOST%", Hostname, 1))
 		if nil != err {
 			return err
 		}
 	}
+	return nil
+}
+
+// SendEvents - Sends stats from all the event objects.
+// Tries to bundle many together into one fmt.Fprintf based on UDPPayloadSize.
+func (c *StatsdClient) SendEvents(events map[string]event.Event) error {
+	if c.conn == nil {
+		return errNotConnected
+	}
+
+	var n int
+	var stats []string = make([]string, 0)
+
+	for _, e := range events {
+		for _, stat := range e.Stats() {
+
+			stat = fmt.Sprintf("%s%s", c.prefix, strings.Replace(stat, "%HOST%", Hostname, 1))
+			_n := n + len(stat) + 1
+
+			if _n > UDPPayloadSize {
+				// with this last event, the UDP payload would be too big
+				if _, err := fmt.Fprintf(c.conn, strings.Join(stats, "\n")); err != nil {
+					return err
+				}
+				// reset payload after flushing, and add the last event
+				stats = []string{stat}
+				n = len(stat)
+				continue
+			}
+
+			// can fit more into the current payload
+			n = _n
+			stats = append(stats, stat)
+		}
+	}
+
+	if len(stats) != 0 {
+		if _, err := fmt.Fprintf(c.conn, strings.Join(stats, "\n")); err != nil {
+			return err
+		}
+	}
+
 	return nil
 }

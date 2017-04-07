@@ -23,6 +23,7 @@ var (
 	subscriptionId    = kingpin.Flag("subscription-id", "Id for the subscription.").Default("firehose").OverrideDefaultFromEnvar("SUBSCRIPTION_ID").String()
 	statsdEndpoint    = kingpin.Flag("statsd-endpoint", "Statsd endpoint").Default("10.244.11.2:8125").OverrideDefaultFromEnvar("STATSD_ENDPOINT").String()
 	statsdPrefix      = kingpin.Flag("statsd-prefix", "Statsd prefix").Default("mycf.").OverrideDefaultFromEnvar("STATSD_PREFIX").String()
+	statsdProtocol      = kingpin.Flag("statsd-protocol", "Statsd protocol, either udp or tcp").Default("udp").OverrideDefaultFromEnvar("STATSD_PROTOCOL").String()
 	prefixJob         = kingpin.Flag("prefix-job", "Prefix metric names with job.index").Default("false").OverrideDefaultFromEnvar("PREFIX_JOB").Bool()
 	username          = kingpin.Flag("username", "Firehose username.").Default("admin").OverrideDefaultFromEnvar("FIREHOSE_USERNAME").String()
 	password          = kingpin.Flag("password", "Firehose password.").Default("admin").OverrideDefaultFromEnvar("FIREHOSE_PASSWORD").String()
@@ -32,6 +33,12 @@ var (
 
 func main() {
 	kingpin.Parse()
+
+	err := ValidateStatsdProtocol(*statsdProtocol)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(-1)
+	}
 
 	tokenFetcher := &token.UAATokenFetcher{
 		UaaUrl:                *uaaEndpoint,
@@ -54,8 +61,17 @@ func main() {
 	containerMetricProcessor := processors.NewContainerMetricProcessor()
 	counterProcessor := processors.NewCounterProcessor()
 
+	//Initialising statsd sender
 	sender := statsd.NewStatsdClient(*statsdEndpoint, *statsdPrefix)
-	sender.CreateSocket()
+
+	switch 	statsdProtocol := *statsdProtocol; statsdProtocol {
+		case "udp":
+			sender.CreateSocket()
+			fmt.Println("Using udp protocol for statsd")
+		case "tcp":
+			sender.CreateTCPSocket()
+			fmt.Println("Using tcp protocol for statsd")
+	}
 
 	var processedMetrics []metrics.Metric
 	var proc_err error

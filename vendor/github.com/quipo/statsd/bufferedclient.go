@@ -3,7 +3,6 @@ package statsd
 import (
 	"log"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/quipo/statsd/event"
@@ -24,6 +23,7 @@ type StatsdBuffer struct {
 	events        map[string]event.Event
 	closeChannel  chan closeRequest
 	Logger        Logger
+	Verbose       bool
 }
 
 // NewStatsdBuffer Factory
@@ -35,6 +35,7 @@ func NewStatsdBuffer(interval time.Duration, client *StatsdClient) *StatsdBuffer
 		events:        make(map[string]event.Event, 0),
 		closeChannel:  make(chan closeRequest, 0),
 		Logger:        log.New(os.Stdout, "[BufferedStatsdClient] ", log.Ldate|log.Ltime),
+		Verbose:       true,
 	}
 	go sb.collector()
 	return sb
@@ -43,6 +44,11 @@ func NewStatsdBuffer(interval time.Duration, client *StatsdClient) *StatsdBuffer
 // CreateSocket creates a UDP connection to a StatsD server
 func (sb *StatsdBuffer) CreateSocket() error {
 	return sb.statsd.CreateSocket()
+}
+
+// CreateTCPSocket creates a TCP connection to a StatsD server
+func (sb *StatsdBuffer) CreateTCPSocket() error {
+	return sb.statsd.CreateTCPSocket()
 }
 
 // Incr - Increment a counter metric. Often used to note a particular event
@@ -70,7 +76,7 @@ func (sb *StatsdBuffer) Timing(stat string, delta int64) error {
 // PrecisionTiming - Track a duration event
 // the time delta has to be a duration
 func (sb *StatsdBuffer) PrecisionTiming(stat string, delta time.Duration) error {
-	sb.eventChannel <- event.NewPrecisionTiming(stat, time.Duration(float64(delta)/float64(time.Millisecond)))
+	sb.eventChannel <- event.NewPrecisionTiming(stat, delta)
 	return nil
 }
 
@@ -118,6 +124,23 @@ func (sb *StatsdBuffer) Total(stat string, value int64) error {
 	return nil
 }
 
+// avoid too many allocations by memoizing the "type|key" pair for an event
+// @see https://gobyexample.com/closures
+func initMemoisedKeyMap() func(typ string, key string) string {
+	m := make(map[string]map[string]string)
+	return func(typ string, key string) string {
+		if _, ok := m[typ]; !ok {
+			m[typ] = make(map[string]string)
+		}
+		if k, ok := m[typ][key]; !ok {
+			m[typ][key] = typ + "|" + key
+			return m[typ][key]
+		} else {
+			return k // memoized value
+		}
+	}
+}
+
 // handle flushes and updates in one single thread (instead of locking the events map)
 func (sb *StatsdBuffer) collector() {
 	// on a panic event, flush all the pending stats before panicking
@@ -129,6 +152,8 @@ func (sb *StatsdBuffer) collector() {
 		}
 	}(sb)
 
+	keyFor := initMemoisedKeyMap() // avoid allocations (https://gobyexample.com/closures)
+
 	ticker := time.NewTicker(sb.flushInterval)
 
 	for {
@@ -138,10 +163,8 @@ func (sb *StatsdBuffer) collector() {
 			sb.flush()
 		case e := <-sb.eventChannel:
 			//sb.Logger.Println("Received ", e.String())
-			// convert %HOST% in key
-			k := strings.Replace(e.Key(), "%HOST%", Hostname, 1)
-			e.SetKey(k)
-
+			// issue #28: unable to use Incr and PrecisionTiming with the same key (also fixed #27)
+			k := keyFor(e.TypeString(), e.Key()) // avoid allocations
 			if e2, ok := sb.events[k]; ok {
 				//sb.Logger.Println("Updating existing event")
 				e2.Update(e)
@@ -151,7 +174,9 @@ func (sb *StatsdBuffer) collector() {
 				sb.events[k] = e
 			}
 		case c := <-sb.closeChannel:
-			sb.Logger.Println("Asked to terminate. Flushing stats before returning.")
+			if sb.Verbose {
+				sb.Logger.Println("Asked to terminate. Flushing stats before returning.")
+			}
 			c.reply <- sb.flush()
 			return
 		}
@@ -182,18 +207,11 @@ func (sb *StatsdBuffer) flush() (err error) {
 	if n == 0 {
 		return nil
 	}
-	err = sb.statsd.CreateSocket()
-	if nil != err {
-		sb.Logger.Println("Error establishing UDP connection for sending statsd events:", err)
+	if err := sb.statsd.SendEvents(sb.events); err != nil {
+		sb.Logger.Println(err)
+		return err
 	}
-	for k, v := range sb.events {
-		err := sb.statsd.SendEvent(v)
-		if nil != err {
-			sb.Logger.Println(err)
-		}
-		//sb.Logger.Println("Sent", v.String())
-		delete(sb.events, k)
-	}
+	sb.events = make(map[string]event.Event)
 
 	return nil
 }
