@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/cloudfoundry/noaa"
-	"github.com/cloudfoundry/noaa/events"
+	"github.com/cloudfoundry/noaa/consumer"
+	"github.com/cloudfoundry/sonde-go/events"
 	"github.com/pivotal-cf/graphite-nozzle/metrics"
 	"github.com/pivotal-cf/graphite-nozzle/processors"
 	"github.com/pivotal-cf/graphite-nozzle/token"
@@ -53,12 +53,12 @@ func main() {
 		os.Exit(-1)
 	}
 
-	consumer := noaa.NewConsumer(*dopplerEndpoint, &tls.Config{InsecureSkipVerify: *skipSSLValidation}, nil)
+	consumer := consumer.New(*dopplerEndpoint, &tls.Config{InsecureSkipVerify: *skipSSLValidation}, nil)
+	consumer.RefreshTokenFrom(tokenFetcher)
 
 	httpStartStopProcessor := processors.NewHttpStartStopProcessor()
 	valueMetricProcessor := processors.NewValueMetricProcessor()
 	containerMetricProcessor := processors.NewContainerMetricProcessor()
-	heartbeatProcessor := processors.NewHeartbeatProcessor()
 	counterProcessor := processors.NewCounterProcessor()
 
 	//Initialising statsd sender
@@ -76,12 +76,9 @@ func main() {
 	var processedMetrics []metrics.Metric
 	var proc_err error
 
-	msgChan := make(chan *events.Envelope)
-	go func() {
-		defer close(msgChan)
-		errorChan := make(chan error)
-		go consumer.Firehose(*subscriptionId, authToken, msgChan, errorChan, nil)
+	msgChan, errorChan := consumer.Firehose(*subscriptionId, authToken)
 
+	go func() {
 		for err := range errorChan {
 			fmt.Fprintf(os.Stderr, "%v\n", err.Error())
 		}
@@ -97,8 +94,6 @@ func main() {
 			processedMetrics, proc_err = containerMetricProcessor.Process(msg)
 		case events.Envelope_CounterEvent:
 			processedMetrics, proc_err = counterProcessor.Process(msg)
-		case events.Envelope_Heartbeat:
-			processedMetrics, proc_err = heartbeatProcessor.Process(msg)
 		case events.Envelope_HttpStartStop:
 			processedMetrics, proc_err = httpStartStopProcessor.Process(msg)
 		case events.Envelope_ValueMetric:
@@ -109,23 +104,25 @@ func main() {
 
 		if proc_err != nil {
 			fmt.Fprintf(os.Stderr, "%v\n", proc_err.Error())
-		} else {
-			if !*debug {
-				if len(processedMetrics) > 0 {
-					for _, metric := range processedMetrics {
-						var prefix string
-						if *prefixJob {
-							prefix = msg.GetJob() + "." + msg.GetIndex()
-						}
-						metric.Send(sender, prefix)
+			continue
+		}
+
+		if !*debug {
+			if len(processedMetrics) > 0 {
+				for _, metric := range processedMetrics {
+					var prefix string
+					if *prefixJob {
+						prefix = msg.GetJob() + "." + msg.GetIndex()
 					}
-				}
-			} else {
-				for _, msg := range processedMetrics {
-					fmt.Println(msg)
+					metric.Send(sender, prefix)
 				}
 			}
+		} else {
+			for _, msg := range processedMetrics {
+				fmt.Println(msg)
+			}
 		}
+
 		processedMetrics = nil
 	}
 }

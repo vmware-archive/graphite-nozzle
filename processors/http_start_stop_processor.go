@@ -2,10 +2,10 @@ package processors
 
 import (
 	"errors"
-	"github.com/cloudfoundry/noaa/events"
-	"github.com/pivotal-cf/graphite-nozzle/metrics"
 	"strconv"
 	"strings"
+	"github.com/cloudfoundry/sonde-go/events"
+	"github.com/pivotal-cf/graphite-nozzle/metrics"
 )
 
 type HttpStartStopProcessor struct{}

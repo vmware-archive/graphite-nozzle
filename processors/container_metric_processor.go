@@ -1,9 +1,9 @@
 package processors
 
 import (
-	"github.com/cloudfoundry/noaa/events"
-	"github.com/pivotal-cf/graphite-nozzle/metrics"
 	"strconv"
+	"github.com/cloudfoundry/sonde-go/events"
+	"github.com/pivotal-cf/graphite-nozzle/metrics"
 )
 
 type ContainerMetricProcessor struct{}
