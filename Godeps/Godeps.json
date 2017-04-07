@@ -1,7 +1,7 @@
 {
 	"ImportPath": "github.com/pivotal-cf/graphite-nozzle",
 	"GoVersion": "go1.6",
-	"GodepVersion": "v74",
+	"GodepVersion": "v79",
 	"Packages": [
 		"."
 	],
@@ -45,11 +45,11 @@
 		},
 		{
 			"ImportPath": "github.com/quipo/statsd",
-			"Rev": "1090ab4693b587d42fbf75c2cc64a031a9f22a4b"
+			"Rev": "39c3fe59a6c334d5aefddf41f3c16595301c80e1"
 		},
 		{
 			"ImportPath": "github.com/quipo/statsd/event",
-			"Rev": "1090ab4693b587d42fbf75c2cc64a031a9f22a4b"
+			"Rev": "39c3fe59a6c334d5aefddf41f3c16595301c80e1"
 		},
 		{
 			"ImportPath": "gopkg.in/alecthomas/kingpin.v2",
