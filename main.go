@@ -66,11 +66,16 @@ func main() {
 
 	switch 	statsdProtocol := *statsdProtocol; statsdProtocol {
 		case "udp":
-			sender.CreateSocket()
+			err = sender.CreateSocket()
 			fmt.Println("Using udp protocol for statsd")
 		case "tcp":
-			sender.CreateTCPSocket()
+			err = sender.CreateTCPSocket()
 			fmt.Println("Using tcp protocol for statsd")
+	}
+
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error while connecting to statsd: %v\n", err.Error())
+		os.Exit(-1)
 	}
 
 	var processedMetrics []metrics.Metric
