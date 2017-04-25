@@ -6,6 +6,9 @@ package main
 import (
 	"crypto/tls"
 	"fmt"
+	"net"
+	"os"
+
 	"github.com/cloudfoundry/noaa/consumer"
 	"github.com/cloudfoundry/sonde-go/events"
 	"github.com/pivotal-cf/graphite-nozzle/logging"
@@ -13,8 +16,6 @@ import (
 	"github.com/pivotal-cf/graphite-nozzle/processors"
 	"github.com/pivotal-cf/graphite-nozzle/token"
 	"gopkg.in/alecthomas/kingpin.v2"
-	"net"
-	"os"
 )
 
 var (
@@ -42,7 +43,7 @@ func processMetric(msg *events.Envelope, metric metrics.Metric, sender metrics.S
 	default:
 	case nil:
 	case error:
-		logging.LogError(fmt.Sprintf("Error while sending metric %v :", metric), send_err)
+		logging.LogError(fmt.Sprintf("cannot send metric %v :", metric), send_err)
 		//if the error is generated during a write operation and the protocol is tcp
 		//try to reconnect
 		if net_err, ok := i.(*net.OpError); ok {
@@ -50,7 +51,7 @@ func processMetric(msg *events.Envelope, metric metrics.Metric, sender metrics.S
 				sender.Close()
 				rec_err := sender.Reconnect()
 				if rec_err != nil {
-					logging.LogError("Error while re-connecting to statsd", rec_err)
+					logging.LogError("cannot re-connect to statsd", rec_err)
 					os.Exit(-1)
 				}
 			}
@@ -63,7 +64,7 @@ func main() {
 
 	err := ValidateStatsdProtocol(*statsdProtocol)
 	if err != nil {
-		logging.LogError("Error while validating statsd protocol", err)
+		logging.LogError("cannot validate statsd protocol", err)
 		os.Exit(-1)
 	}
 
@@ -76,7 +77,7 @@ func main() {
 
 	authToken, err := tokenFetcher.FetchAuthToken()
 	if err != nil {
-		logging.LogError("Error while fetching auth token", err)
+		logging.LogError("cannot fetch auth token", err)
 		os.Exit(-1)
 	}
 
@@ -96,17 +97,17 @@ func main() {
 	}
 
 	//initialising statsd sender
-	logging.LogStd(fmt.Sprintf("Using %s protocol for statsd", *statsdProtocol), true)
+	logging.LogStd(fmt.Sprintf("Using %s protocol for statsd", *statsdProtocol))
 
 	sender, err := metrics.CreateClient(clientConf)
 	if err != nil {
-		logging.LogError("Error while connecting to statsd", err)
+		logging.LogError("cannot connect to statsd", err)
 		os.Exit(-1)
 	}
 	//connetcting to the statsd server
 	err = sender.Connect()
 	if err != nil {
-		logging.LogError("Error while connecting to statsd", err)
+		logging.LogError("cannot connect to statsd", err)
 		os.Exit(-1)
 	}
 
@@ -117,7 +118,7 @@ func main() {
 
 	go func() {
 		for err := range errorChan {
-			logging.LogError("", err)
+			logging.LogError(err.Error(), err)
 		}
 	}()
 
@@ -140,7 +141,7 @@ func main() {
 		}
 
 		if proc_err != nil {
-			logging.LogError("", proc_err)
+			logging.LogError(proc_err.Error(), proc_err)
 			continue
 		}
 
@@ -152,7 +153,7 @@ func main() {
 			}
 		} else {
 			for _, msg := range processedMetrics {
-				logging.LogStd(fmt.Sprintf("%v", msg), true)
+				logging.LogStd(fmt.Sprintf("%v", msg))
 			}
 		}
 
