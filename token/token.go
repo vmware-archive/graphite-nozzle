@@ -3,9 +3,9 @@ package token
 // Stolen from https://github.com/cloudfoundry-incubator/datadog-firehose-nozzle/blob/master/uaatokenfetcher/uaa_token_fetcher.go
 
 import (
-  "fmt"
-  "os"
 	"github.com/cloudfoundry-incubator/uaago"
+
+	"github.com/pivotal-cf/graphite-nozzle/logging"
 )
 
 type UAATokenFetcher struct {
@@ -31,6 +31,6 @@ func (uaa *UAATokenFetcher) FetchAuthToken() (string, error) {
 }
 
 func (uaa *UAATokenFetcher) RefreshAuthToken() (string, error) {
-  fmt.Fprintf(os.Stdout, "Refreshing authorization token\n")
+	logging.LogStd("Refreshing authorization token")
 	return uaa.FetchAuthToken()
 }
