@@ -1,14 +1,8 @@
 package metrics
 
-import "time"
-
-type StatsdClient interface {
-	Gauge(stat string, value int64) error
-	FGauge(stat string, value float64) error
-	Incr(stat string, count int64) error
-	Timing(string, int64) error
-	PrecisionTiming(stat string, delta time.Duration) error
-}
+import (
+	"time"
+)
 
 type Metric interface {
 	Send(StatsdClient, string) error
