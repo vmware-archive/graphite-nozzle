@@ -48,7 +48,6 @@ func processMetric(msg *events.Envelope, metric metrics.Metric, sender metrics.S
 		//try to reconnect
 		if net_err, ok := i.(*net.OpError); ok {
 			if net_err.Net == "tcp" {
-				sender.Close()
 				rec_err := sender.Reconnect()
 				if rec_err != nil {
 					logging.LogError("cannot re-connect to statsd", rec_err)
