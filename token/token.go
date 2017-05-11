@@ -4,6 +4,8 @@ package token
 
 import (
 	"github.com/cloudfoundry-incubator/uaago"
+
+	"github.com/pivotal-cf/graphite-nozzle/logging"
 )
 
 type UAATokenFetcher struct {
@@ -14,6 +16,7 @@ type UAATokenFetcher struct {
 }
 
 func (uaa *UAATokenFetcher) FetchAuthToken() (string, error) {
+
 	uaaClient, err := uaago.NewClient(uaa.UaaUrl)
 	if err != nil {
 		return "", err
@@ -25,4 +28,9 @@ func (uaa *UAATokenFetcher) FetchAuthToken() (string, error) {
 		return "", err
 	}
 	return authToken, nil
+}
+
+func (uaa *UAATokenFetcher) RefreshAuthToken() (string, error) {
+	logging.LogStd("Refreshing authorization token")
+	return uaa.FetchAuthToken()
 }
