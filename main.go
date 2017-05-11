@@ -100,7 +100,7 @@ func main() {
 
 	sender, err := metrics.CreateClient(clientConf)
 	if err != nil {
-		logging.LogError("cannot connect to statsd", err)
+		logging.LogError("cannot initialize statsd client", err)
 		os.Exit(-1)
 	}
 	//connetcting to the statsd server
