@@ -25,8 +25,10 @@ var (
 	statsdPrefix      = kingpin.Flag("statsd-prefix", "Statsd prefix").Default("mycf.").OverrideDefaultFromEnvar("STATSD_PREFIX").String()
 	statsdProtocol      = kingpin.Flag("statsd-protocol", "Statsd protocol, either udp or tcp").Default("udp").OverrideDefaultFromEnvar("STATSD_PROTOCOL").String()
 	prefixJob         = kingpin.Flag("prefix-job", "Prefix metric names with job.index").Default("false").OverrideDefaultFromEnvar("PREFIX_JOB").Bool()
-	username          = kingpin.Flag("username", "Firehose username.").Default("admin").OverrideDefaultFromEnvar("FIREHOSE_USERNAME").String()
-	password          = kingpin.Flag("password", "Firehose password.").Default("admin").OverrideDefaultFromEnvar("FIREHOSE_PASSWORD").String()
+	username          = kingpin.Flag("username", "Firehose client id [deprecated]. Use client-id").Default("admin").OverrideDefaultFromEnvar("FIREHOSE_USERNAME").String()
+	password          = kingpin.Flag("password", "Firehose client secret [deprecated]. Use client-secret").Default("admin").OverrideDefaultFromEnvar("FIREHOSE_PASSWORD").String()
+	client_id         = kingpin.Flag("client-id", "Firehose client id.").Default("admin").OverrideDefaultFromEnvar("FIREHOSE_CLIENT_ID").String()
+	client_secret     = kingpin.Flag("client-secret", "Firehose client secret.").Default("admin").OverrideDefaultFromEnvar("FIREHOSE_CLIENT_SECRET").String()
 	skipSSLValidation = kingpin.Flag("skip-ssl-validation", "Please don't").Default("false").OverrideDefaultFromEnvar("SKIP_SSL_VALIDATION").Bool()
 	debug             = kingpin.Flag("debug", "Enable debug mode. This disables forwarding to statsd and prints to stdout").Default("false").OverrideDefaultFromEnvar("DEBUG").Bool()
 )
@@ -38,6 +40,14 @@ func main() {
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(-1)
+	}
+
+	if *username == "admin" {
+		username = client_id
+        }
+
+        if *password == "admin" {
+		password = client_secret
 	}
 
 	tokenFetcher := &token.UAATokenFetcher{
