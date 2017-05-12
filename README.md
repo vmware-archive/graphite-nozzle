@@ -4,7 +4,7 @@ This library consumes events off the Cloud Foundry Firehose, processes them, and
 
 ## Getting Started
 
-* A user who has access to the Cloud Foundry Firehose configured in
+* A client id and secret that has access to the Cloud Foundry Firehose configured in
 your manifest
 
 ```
@@ -15,12 +15,21 @@ properties:
         access-token-validity: 1209600
         authorized-grant-types: authorization_code,client_credentials,refresh_token
         override: true
-        secret: <password>
+        secret: <secret>
         scope: openid,oauth.approvals,doppler.firehose
         authorities: oauth.login,doppler.firehose
 
 ```
-
+or alternately configured via the uaac cli:
+```
+uaac target https://uaa.[your cf system domain] --skip-ssl-validation
+uaac token client get admin -s [your admin-secret]
+uaac client add graphite-nozzle \
+      --name firehose-to-syslog \
+      --secret [your_client_secret] \
+      --authorized_grant_types client_credentials,refresh_token \
+      --authorities doppler.firehose
+```
 * A Graphite and StatsD server (see [here](https://github.com/CloudCredo/graphite-statsd-boshrelease) for a Graphite/StatsD BOSH release).
 * Golang installed and configured (see [here](https://golang.org/doc/install) for a tutorial on how to do this).
 * godep (see [here](https://github.com/tools/godep) for installation instructions).
